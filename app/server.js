@@ -71,6 +71,100 @@ app.get('/api/db-status', (req, res) => {
 });
 
 // -----------------------------------------------------------------------------
+// 2.1 Database Viewer Routes (สำหรับดูโครงสร้างและข้อมูลตารางใน MySQL)
+// -----------------------------------------------------------------------------
+const ALLOWED_TABLES = [
+  'users', 'departments', 'categories', 'rooms', 'cases',
+  'case_timeline', 'case_attachments', 'case_counters',
+  'room_logs', 'audit_logs', 'system_configs'
+];
+
+const TABLE_DESCRIPTIONS = {
+  users: 'ผู้ใช้งาน, พนักงาน และสิทธิ์การเข้าถึง (Roles & Permissions)',
+  departments: 'แผนกหลักในโรงแรม (IT, HK, ENG, FRONT, SECURITY)',
+  categories: 'หมวดหมู่ปัญหาแยกตามแผนก',
+  rooms: 'ข้อมูลห้องพัก 23 ห้อง และสถานะเปิด/ปิดขาย',
+  cases: 'เคสแจ้งปัญหา/แจ้งซ่อม รายละเอียด และ SLA',
+  case_timeline: 'ประวัติบันทึกการแชทและการเปลี่ยนสถานะในเคส',
+  case_attachments: 'ไฟล์แนบและรูปถ่ายประกอบเคส',
+  case_counters: 'ตัวนับเลขที่เคสประจำวันแบบ atomic lock',
+  room_logs: 'ประวัติการสั่งเปิด-ปิดห้องพัก',
+  audit_logs: 'บันทึก Audit การทำงานและความปลอดภัยในระบบ',
+  system_configs: 'ค่าคอนฟิกและ SLA ของระบบ'
+};
+
+app.get('/api/database/tables', async (req, res) => {
+  try {
+    const rows = await db.query(`
+      SELECT 
+        TABLE_NAME as name,
+        TABLE_ROWS as rowCount,
+        ROUND((DATA_LENGTH + INDEX_LENGTH) / 1024, 1) as sizeKb,
+        CREATE_TIME as createdAt,
+        UPDATE_TIME as updatedAt
+      FROM information_schema.TABLES
+      WHERE TABLE_SCHEMA = ?
+      ORDER BY TABLE_NAME ASC
+    `, [process.env.DB_NAME || 'hotel_case_db']);
+
+    const tables = rows
+      .filter(r => ALLOWED_TABLES.includes(r.name))
+      .map(r => ({
+        ...r,
+        description: TABLE_DESCRIPTIONS[r.name] || ''
+      }));
+
+    res.json({ success: true, tables });
+  } catch (err) {
+    console.error('Fetch tables error:', err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.get('/api/database/table/:name', async (req, res) => {
+  const tableName = req.params.name;
+  if (!ALLOWED_TABLES.includes(tableName)) {
+    return res.status(400).json({ success: false, message: 'ตารางที่ระบุไม่ถูกต้องหรือไม่ได้รับอนุญาต' });
+  }
+
+  try {
+    const columns = await db.query(`
+      SELECT 
+        COLUMN_NAME as name,
+        COLUMN_TYPE as type,
+        IS_NULLABLE as nullable,
+        COLUMN_KEY as columnKey,
+        COLUMN_DEFAULT as defaultValue,
+        EXTRA as extra,
+        COLUMN_COMMENT as comment
+      FROM information_schema.COLUMNS
+      WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?
+      ORDER BY ORDINAL_POSITION ASC
+    `, [process.env.DB_NAME || 'hotel_case_db', tableName]);
+
+    const countRows = await db.query(`SELECT COUNT(*) as total FROM \`${tableName}\``);
+    const total = countRows[0] ? countRows[0].total : 0;
+
+    let selectFields = '*';
+    if (tableName === 'users') {
+      selectFields = 'id, username, email, full_name, nickname, department_id, role, phone, line_user_id, is_active, last_login_at, created_at, updated_at';
+    }
+    const dataRows = await db.query(`SELECT ${selectFields} FROM \`${tableName}\` ORDER BY 1 DESC LIMIT 100`);
+
+    res.json({
+      success: true,
+      tableName,
+      description: TABLE_DESCRIPTIONS[tableName] || '',
+      columns,
+      totalRows: total,
+      rows: dataRows
+    });
+  } catch (err) {
+    console.error(`Fetch table ${tableName} error:`, err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // 3. Auth Routes (ระบบล็อกอินจริงด้วย MySQL)
 // -----------------------------------------------------------------------------
 app.post('/api/auth/login', async (req, res) => {

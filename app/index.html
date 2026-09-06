@@ -118,6 +118,11 @@
         <span data-i18n="nav.users">จัดการผู้ใช้งาน</span>
         <span class="nav-count" id="nav-count-users">0</span>
       </button>
+      <button class="nav-item" data-nav="database" onclick="App.go('database')" data-perm="database">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+        <span data-i18n="nav.database">ฐานข้อมูล MySQL</span>
+        <span class="nav-count" id="nav-count-database">11</span>
+      </button>
 
       <div class="sidebar-foot">
         <div class="user-card">
@@ -591,6 +596,96 @@
   </div>
 </div>
 
+      ﻿<section id="view-database" class="view hidden">
+  <div class="page-header">
+    <div class="page-title">
+      <h1 class="t-section" data-i18n="database.title">ฐานข้อมูล MySQL (hotel_case_db)</h1>
+      <span class="badge badge-count" id="db-tables-count">11 ตาราง</span>
+    </div>
+    <div class="row gap-2">
+      <span class="sync-indicator" style="background:var(--surface-2); padding:6px 12px; border-radius:20px; font-size:0.8rem;">
+        <span class="sync-dot"></span>
+        <span>MariaDB 10.11 · Port 3306</span>
+      </span>
+      <button class="btn btn-secondary btn-sm" onclick="App.refreshDatabaseViewer()">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        <span>รีเฟรช</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="db-viewer-layout" style="display:grid; grid-template-columns:260px 1fr; gap:16px; align-items:start;">
+    <!-- รายชื่อตาราง (Table List Sidebar) -->
+    <div class="card" style="padding:12px; max-height:calc(100vh - 160px); overflow-y:auto;">
+      <div class="t-caption-bold mb-2" style="color:var(--text-emphasis); display:flex; justify-content:space-between; align-items:center;">
+        <span>ตารางในระบบ</span>
+        <span class="text-muted t-small" id="db-total-tables">11</span>
+      </div>
+      <div id="db-table-list" class="db-table-menu" style="display:flex; flex-direction:column; gap:4px;">
+        <!-- Javascript populates table list items -->
+      </div>
+    </div>
+
+    <!-- รายละเอียดตารางที่เลือก (Table Details & Data Explorer) -->
+    <div class="card" style="padding:16px; min-width:0; overflow:hidden;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+        <div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="badge badge-dept" style="font-size:0.9rem; font-family:var(--font-mono);" id="db-selected-table-name">users</span>
+            <span class="badge badge-count" id="db-selected-table-rows">0 แถว</span>
+          </div>
+          <div class="text-muted t-small mt-1" id="db-selected-table-desc">คำอธิบายตาราง</div>
+        </div>
+
+        <!-- แท็บสลับระหว่าง Schema / Data -->
+        <div class="tab-pill-group" style="display:flex; background:var(--surface-2); border-radius:8px; padding:3px;">
+          <button class="pill-btn is-active" id="btn-db-tab-data" onclick="App.switchDbTab('data')">
+            <span>ข้อมูล (Browse Data)</span>
+          </button>
+          <button class="pill-btn" id="btn-db-tab-schema" onclick="App.switchDbTab('schema')">
+            <span>โครงสร้าง (Schema)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ส่วนที่ 1: ตารางข้อมูลสด (Data View) -->
+      <div id="db-view-data-container">
+        <div class="table-scroll" style="max-height:600px; border:1px solid var(--border-hairline); border-radius:8px;">
+          <table class="case-table db-data-table" id="db-data-table" aria-label="Database Data">
+            <thead id="db-data-thead"></thead>
+            <tbody id="db-data-tbody">
+              <tr><td colspan="10"><div class="empty-state">กำลังโหลดข้อมูล...</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="t-small text-muted mt-2" id="db-data-footer">
+          * แสดงข้อมูลสูงสุด 100 แถวล่าสุดแบบสดจาก MySQL
+        </div>
+      </div>
+
+      <!-- ส่วนที่ 2: ตารางโครงสร้างคอลัมน์ (Schema View) -->
+      <div id="db-view-schema-container" class="hidden">
+        <div class="table-scroll" style="max-height:600px; border:1px solid var(--border-hairline); border-radius:8px;">
+          <table class="case-table" id="db-schema-table" aria-label="Database Schema">
+            <thead>
+              <tr>
+                <th>คอลัมน์ (Column)</th>
+                <th>ประเภท (Type)</th>
+                <th>Key</th>
+                <th>Null?</th>
+                <th>Default</th>
+                <th>คำอธิบาย (Comment)</th>
+              </tr>
+            </thead>
+            <tbody id="db-schema-tbody">
+              <tr><td colspan="6"><div class="empty-state">กำลังโหลดโครงสร้าง...</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
     </main>
   </div>
 

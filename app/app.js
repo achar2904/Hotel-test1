@@ -15,7 +15,7 @@ const DICT = {
     'role.admin':'ผู้ดูแลระบบ (Admin)','role.owner':'ผู้บริหาร (GM/Owner)','role.dept_head':'หัวหน้าแผนก','role.staff':'พนักงานทั่วไป',
     'login.title':'ระบบแจ้งเคสภายในโรงแรม','login.subtitle':'เข้าสู่ระบบด้วยบัญชี Google ขององค์กร',
     'login.google':'ลงชื่อเข้าใช้ด้วย Google','login.footer':'ต้องมีบัญชีในโดเมนของโรงแรมเท่านั้น','login.demoAs':'Demo — เข้าใช้เป็น',
-    'nav.cases':'รายการเคส','nav.create':'แจ้งเคสใหม่','nav.dashboard':'Dashboard เคส','nav.rooms':'Dashboard ห้อง','nav.audit':'Audit log','nav.config':'ตั้งค่า','nav.users':'จัดการผู้ใช้งาน','users.title':'จัดการผู้ใช้งานและกำหนดสิทธิ์',
+    'nav.cases':'รายการเคส','nav.create':'แจ้งเคสใหม่','nav.dashboard':'Dashboard เคส','nav.rooms':'Dashboard ห้อง','nav.audit':'Audit log','nav.config':'ตั้งค่า','nav.users':'จัดการผู้ใช้งาน','users.title':'จัดการผู้ใช้งานและกำหนดสิทธิ์','nav.database':'ฐานข้อมูล MySQL','database.title':'ฐานข้อมูล MySQL (hotel_case_db)',
     'tab.list':'เคส','tab.new':'แจ้ง','tab.dash':'Dash','tab.rooms':'ห้อง',
     'list.title':'รายการเคส','list.newCase':'แจ้งเคสใหม่','list.searchPlaceholder':'ค้นหาเคส หมายเลข หัวข้อ ห้อง...',
     'filter.allStatus':'สถานะทั้งหมด','filter.allPriority':'ความสำคัญทั้งหมด','filter.allDept':'ทุกแผนก','filter.allCategory':'ทุกหมวดหมู่','filter.allAssignee':'ผู้รับผิดชอบทุกคน','filter.unassigned':'ยังไม่มีผู้รับผิดชอบ',
@@ -77,7 +77,7 @@ const DICT = {
     'role.admin':'Administrator','role.owner':'Owner / GM','role.dept_head':'Department Head','role.staff':'Staff',
     'login.title':'Hotel Case Reporting System','login.subtitle':'Sign in with your organization Google account',
     'login.google':'Sign in with Google','login.footer':'Only accounts in the hotel domain can sign in','login.demoAs':'Demo — sign in as',
-    'nav.cases':'Cases','nav.create':'New case','nav.dashboard':'Case dashboard','nav.rooms':'Room dashboard','nav.audit':'Audit log','nav.config':'Settings','nav.users':'Users','users.title':'User Management & Permissions',
+    'nav.cases':'Cases','nav.create':'New case','nav.dashboard':'Case dashboard','nav.rooms':'Room dashboard','nav.audit':'Audit log','nav.config':'Settings','nav.users':'Users','users.title':'User Management & Permissions','nav.database':'MySQL Database','database.title':'MySQL Database (hotel_case_db)',
     'tab.list':'Cases','tab.new':'New','tab.dash':'Dash','tab.rooms':'Rooms',
     'list.title':'Cases','list.newCase':'New case','list.searchPlaceholder':'Search case #, subject, room...',
     'filter.allStatus':'All statuses','filter.allPriority':'All priorities','filter.allDept':'All departments','filter.allCategory':'All categories','filter.allAssignee':'All assignees','filter.unassigned':'Unassigned',
@@ -281,6 +281,7 @@ function canSeeDashboard(){ return STATE.ui.role !== 'staff'; }
 function canSeeConfig(){ return STATE.ui.role==='admin' || STATE.ui.role==='owner'; }
 function canSeeAudit(){ return STATE.ui.role==='admin' || STATE.ui.role==='owner'; }
 function canSeeUsers(){ return STATE.ui.role==='admin'; }
+function canSeeDatabase(){ return STATE.ui.role==='admin'; }
 function isDeptOrAbove(){ return STATE.ui.role==='dept_head' || STATE.ui.role==='admin' || STATE.ui.role==='owner'; }
 function canCreate(){ return true; }
 function canAct(c) {
@@ -586,10 +587,12 @@ function applyRole() {
   document.querySelectorAll('[data-perm="config"]').forEach(el => el.classList.toggle('hidden', !canSeeConfig()));
   document.querySelectorAll('[data-perm="audit"]').forEach(el => el.classList.toggle('hidden', !canSeeAudit()));
   document.querySelectorAll('[data-perm="users"]').forEach(el => el.classList.toggle('hidden', !canSeeUsers()));
+  document.querySelectorAll('[data-perm="database"]').forEach(el => el.classList.toggle('hidden', !canSeeDatabase()));
   document.querySelectorAll('.nav-item').forEach(n => {
     if (n.dataset.nav === 'config') n.classList.toggle('hidden', !canSeeConfig());
     if (n.dataset.nav === 'audit') n.classList.toggle('hidden', !canSeeAudit());
     if (n.dataset.nav === 'users') n.classList.toggle('hidden', !canSeeUsers());
+    if (n.dataset.nav === 'database') n.classList.toggle('hidden', !canSeeDatabase());
   });
 }
 
@@ -599,6 +602,7 @@ function go(view) {
   if (view === 'config' && !canSeeConfig()) view = 'list';
   if (view === 'audit' && !canSeeAudit()) view = 'list';
   if (view === 'users' && !canSeeUsers()) view = 'list';
+  if (view === 'database' && !canSeeDatabase()) view = 'list';
   STATE.ui.view = view;
   document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
   const targetView = document.getElementById('view-'+view);
@@ -613,6 +617,7 @@ function go(view) {
   if (view==='audit') renderAudit();
   if (view==='config') renderConfig();
   if (view==='users') renderUsers();
+  if (view==='database') renderDatabase();
   window.scrollTo(0,0);
   saveState();
 }
@@ -1164,6 +1169,127 @@ async function renderUsers() {
   }).join('');
 }
 
+// -------- Database Viewer --------
+let currentDbTable = 'users';
+let currentDbTab = 'data';
+
+async function renderDatabase(selectedTable) {
+  const listEl = document.getElementById('db-table-list');
+  if (!listEl) return;
+
+  if (selectedTable) currentDbTable = selectedTable;
+
+  try {
+    const res = await fetch('/api/database/tables').then(r => r.json());
+    if (res.success && Array.isArray(res.tables)) {
+      const totalCount = res.tables.length;
+      const countBadge = document.getElementById('db-tables-count');
+      if (countBadge) countBadge.textContent = `${totalCount} ตาราง`;
+      const navCount = document.getElementById('nav-count-database');
+      if (navCount) navCount.textContent = totalCount;
+      const totalTablesEl = document.getElementById('db-total-tables');
+      if (totalTablesEl) totalTablesEl.textContent = `${totalCount} ตาราง`;
+
+      listEl.innerHTML = res.tables.map(t => `
+        <button type="button" class="db-table-item ${t.name === currentDbTable ? 'is-active' : ''}" onclick="App.selectDbTable('${t.name}')">
+          <span>${t.name}</span>
+          <span class="badge ${t.name === currentDbTable ? 'badge-dept' : ''}" style="font-size:0.7rem;">${t.rowCount ?? 0}</span>
+        </button>
+      `).join('');
+
+      await loadTableDetails(currentDbTable);
+    }
+  } catch (err) {
+    console.error('Failed to load database tables:', err);
+  }
+}
+
+async function loadTableDetails(tableName) {
+  currentDbTable = tableName;
+
+  document.querySelectorAll('.db-table-item').forEach(btn => {
+    const isThis = btn.querySelector('span')?.textContent === tableName;
+    btn.classList.toggle('is-active', isThis);
+  });
+
+  const nameEl = document.getElementById('db-selected-table-name');
+  if (nameEl) nameEl.textContent = tableName;
+
+  const dataThead = document.getElementById('db-data-thead');
+  const dataTbody = document.getElementById('db-data-tbody');
+  const schemaTbody = document.getElementById('db-schema-tbody');
+
+  if (dataTbody) dataTbody.innerHTML = `<tr><td colspan="10"><div class="empty-state">กำลังโหลดข้อมูล ${tableName}...</div></td></tr>`;
+  if (schemaTbody) schemaTbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">กำลังโหลดโครงสร้าง ${tableName}...</div></td></tr>`;
+
+  try {
+    const res = await fetch(`/api/database/table/${tableName}`).then(r => r.json());
+    if (!res.success) {
+      if (dataTbody) dataTbody.innerHTML = `<tr><td colspan="10"><div class="empty-state">${escapeHtml(res.message || 'เกิดข้อผิดพลาด')}</div></td></tr>`;
+      return;
+    }
+
+    const descEl = document.getElementById('db-selected-table-desc');
+    if (descEl) descEl.textContent = res.description || 'ไม่มีคำอธิบาย';
+    const rowsBadge = document.getElementById('db-selected-table-rows');
+    if (rowsBadge) rowsBadge.textContent = `${res.totalRows} แถว (${res.columns.length} คอลัมน์)`;
+
+    // 1. Render Schema (Columns)
+    if (schemaTbody) {
+      schemaTbody.innerHTML = res.columns.map(col => {
+        let keyBadge = '—';
+        if (col.columnKey === 'PRI') keyBadge = '<span class="badge badge-priority-emergency" style="font-size:0.65rem;">PRIMARY KEY</span>';
+        else if (col.columnKey === 'MUL') keyBadge = '<span class="badge" style="background:#EBF8FF; color:#2B6CB0; font-size:0.65rem;">INDEX / FK</span>';
+        else if (col.columnKey === 'UNI') keyBadge = '<span class="badge" style="background:#FEF3C7; color:#B45309; font-size:0.65rem;">UNIQUE</span>';
+
+        return `
+          <tr>
+            <td style="font-family:var(--font-mono); font-weight:600; color:var(--text-base);">${escapeHtml(col.name)}</td>
+            <td style="font-family:var(--font-mono); color:var(--text-secondary);">${escapeHtml(col.type)}</td>
+            <td>${keyBadge}</td>
+            <td>${col.nullable === 'YES' ? '<span class="text-muted t-small">YES</span>' : '<span style="font-weight:600; font-size:0.75rem;">NO</span>'}</td>
+            <td style="font-family:var(--font-mono); font-size:0.75rem;">${col.defaultValue != null ? escapeHtml(col.defaultValue) : '<span class="val-null">NULL</span>'}</td>
+            <td class="text-muted t-small">${escapeHtml(col.comment || col.extra || '—')}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // 2. Render Data (Rows)
+    if (dataThead && dataTbody) {
+      if (!res.columns.length) {
+        dataThead.innerHTML = '';
+        dataTbody.innerHTML = `<tr><td><div class="empty-state">ไม่มีคอลัมน์ในตาราง</div></td></tr>`;
+        return;
+      }
+
+      dataThead.innerHTML = `<tr>${res.columns.map(c => `<th>${escapeHtml(c.name)}</th>`).join('')}</tr>`;
+
+      if (!res.rows.length) {
+        dataTbody.innerHTML = `<tr><td colspan="${res.columns.length}"><div class="empty-state">ตารางนี้ยังไม่มีข้อมูล (0 แถว)</div></td></tr>`;
+      } else {
+        dataTbody.innerHTML = res.rows.map(row => `
+          <tr>
+            ${res.columns.map(col => {
+              const val = row[col.name];
+              if (val === null || val === undefined) {
+                return `<td><span class="val-null">NULL</span></td>`;
+              }
+              if (typeof val === 'boolean') {
+                return `<td>${val ? '1' : '0'}</td>`;
+              }
+              return `<td title="${escapeHtml(String(val))}">${escapeHtml(String(val))}</td>`;
+            }).join('')}
+          </tr>
+        `).join('');
+      }
+    }
+  } catch (err) {
+    console.error(`Failed to load details for table ${tableName}:`, err);
+    if (dataTbody) dataTbody.innerHTML = `<tr><td colspan="10"><div class="empty-state">เกิดข้อผิดพลาดในการโหลดข้อมูล</div></td></tr>`;
+  }
+}
+
 // ============================================================
 // Public API (App.*)
 // ============================================================
@@ -1337,6 +1463,28 @@ const App = {
       Toast.push('err', 'เกิดข้อผิดพลาด', err.message);
     }
   },
+
+  // Database Viewer
+  renderDatabase,
+  selectDbTable(name) {
+    loadTableDetails(name);
+  },
+  switchDbTab(tab) {
+    currentDbTab = tab;
+    const btnData = document.getElementById('btn-db-tab-data');
+    const btnSchema = document.getElementById('btn-db-tab-schema');
+    const viewData = document.getElementById('db-view-data-container');
+    const viewSchema = document.getElementById('db-view-schema-container');
+    if (btnData) btnData.classList.toggle('is-active', tab === 'data');
+    if (btnSchema) btnSchema.classList.toggle('is-active', tab === 'schema');
+    if (viewData) viewData.classList.toggle('hidden', tab !== 'data');
+    if (viewSchema) viewSchema.classList.toggle('hidden', tab !== 'schema');
+  },
+  refreshDatabaseViewer() {
+    renderDatabase(currentDbTable);
+    Toast.push('info', 'รีเฟรชฐานข้อมูล', `อัปเดตข้อมูลตาราง ${currentDbTable} แล้ว`);
+  },
+
   toggleLang() { STATE.ui.lang = STATE.ui.lang==='th'?'en':'th'; applyI18n(); go(STATE.ui.view); renderNotifPanel(); saveState(); },
   toggleSidebar() {
     const sb = document.getElementById('sidebar');

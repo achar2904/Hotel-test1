@@ -1343,6 +1343,70 @@ svg.trend path { transition: stroke-dashoffset 900ms var(--ease-out); }
 }
 
 /* ============================================================
+   Database Viewer Component
+   ============================================================ */
+.db-table-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-base);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  width: 100%;
+}
+.db-table-item:hover {
+  background: var(--surface-2);
+}
+.db-table-item.is-active {
+  background: var(--accent-subtle);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+.pill-btn {
+  border: none;
+  background: transparent;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.pill-btn.is-active {
+  background: var(--surface-elev);
+  color: var(--text-emphasis);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.db-data-table td {
+  max-width: 240px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.8rem;
+}
+.val-null {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.75rem;
+}
+
+@media (max-width: 860px) {
+  .db-viewer-layout {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ============================================================
    Print
    ============================================================ */
 @media print {
