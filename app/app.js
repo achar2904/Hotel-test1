@@ -1172,6 +1172,9 @@ async function renderUsers() {
 // -------- Database Viewer --------
 let currentDbTable = 'users';
 let currentDbTab = 'data';
+let currentTableColumns = [];
+let currentTableRows = [];
+let currentTablePk = 'id';
 
 async function renderDatabase(selectedTable) {
   const listEl = document.getElementById('db-table-list');
@@ -1229,6 +1232,10 @@ async function loadTableDetails(tableName) {
       return;
     }
 
+    currentTableColumns = res.columns || [];
+    currentTableRows = res.rows || [];
+    currentTablePk = currentTableColumns.find(c => c.columnKey === 'PRI')?.name || 'id';
+
     const descEl = document.getElementById('db-selected-table-desc');
     if (descEl) descEl.textContent = res.description || 'ไม่มีคำอธิบาย';
     const rowsBadge = document.getElementById('db-selected-table-rows');
@@ -1263,12 +1270,13 @@ async function loadTableDetails(tableName) {
         return;
       }
 
-      dataThead.innerHTML = `<tr>${res.columns.map(c => `<th>${escapeHtml(c.name)}</th>`).join('')}</tr>`;
+      dataThead.innerHTML = `<tr>${res.columns.map(c => `<th>${escapeHtml(c.name)}</th>`).join('')}<th style="text-align:right; width:110px;">จัดการ</th></tr>`;
 
       if (!res.rows.length) {
-        dataTbody.innerHTML = `<tr><td colspan="${res.columns.length}"><div class="empty-state">ตารางนี้ยังไม่มีข้อมูล (0 แถว)</div></td></tr>`;
+        dataTbody.innerHTML = `<tr><td colspan="${res.columns.length + 1}"><div class="empty-state">ตารางนี้ยังไม่มีข้อมูล (0 แถว)</div></td></tr>`;
       } else {
-        dataTbody.innerHTML = res.rows.map(row => `
+        const pk = currentTablePk;
+        dataTbody.innerHTML = res.rows.map((row, idx) => `
           <tr>
             ${res.columns.map(col => {
               const val = row[col.name];
@@ -1280,6 +1288,14 @@ async function loadTableDetails(tableName) {
               }
               return `<td title="${escapeHtml(String(val))}">${escapeHtml(String(val))}</td>`;
             }).join('')}
+            <td style="text-align:right; white-space:nowrap;">
+              <button type="button" class="btn btn-sm btn-ghost" onclick="App.openEditDbRowModal(${idx})" title="แก้ไขแถวนี้">
+                ✏️
+              </button>
+              <button type="button" class="btn btn-sm btn-ghost" style="color:var(--status-emergency);" onclick="App.deleteDbRow('${tableName}', '${escapeHtml(String(row[pk]))}')" title="ลบแถวนี้">
+                🗑️
+              </button>
+            </td>
           </tr>
         `).join('');
       }
@@ -1483,6 +1499,228 @@ const App = {
   refreshDatabaseViewer() {
     renderDatabase(currentDbTable);
     Toast.push('info', 'รีเฟรชฐานข้อมูล', `อัปเดตข้อมูลตาราง ${currentDbTable} แล้ว`);
+  },
+
+  openInsertDbRowModal() {
+    const modal = document.getElementById('modal-db-row');
+    const titleEl = document.getElementById('modal-db-row-title');
+    const fieldsContainer = document.getElementById('db-row-form-fields');
+    const pkValInput = document.getElementById('db-row-pk-val');
+    if (!modal || !fieldsContainer) return;
+
+    pkValInput.value = '';
+    titleEl.textContent = `+ เพิ่มข้อมูลใหม่ในตาราง: ${currentDbTable}`;
+
+    fieldsContainer.innerHTML = currentTableColumns.map(col => {
+      if (col.extra && col.extra.includes('auto_increment')) {
+        return `
+          <div class="form-field">
+            <label class="form-label">${escapeHtml(col.name)} <span class="text-muted t-small">(Auto Increment)</span></label>
+            <input class="form-input" disabled value="สร้างอัตโนมัติ">
+          </div>
+        `;
+      }
+      if (['created_at', 'updated_at'].includes(col.name)) {
+        return `
+          <div class="form-field">
+            <label class="form-label">${escapeHtml(col.name)} <span class="text-muted t-small">(Timestamp)</span></label>
+            <input class="form-input" disabled value="เวลาปัจจุบัน (NOW)">
+          </div>
+        `;
+      }
+
+      const isRequired = col.nullable === 'NO' && col.defaultValue === null;
+      let inputHtml = '';
+
+      if (col.type.startsWith('enum(')) {
+        const matches = col.type.match(/'([^']+)'/g) || [];
+        const opts = matches.map(s => s.replace(/'/g, ''));
+        inputHtml = `
+          <select class="form-select" name="${escapeHtml(col.name)}" ${isRequired ? 'required' : ''}>
+            ${col.nullable === 'YES' ? '<option value="">(NULL)</option>' : ''}
+            ${opts.map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join('')}
+          </select>
+        `;
+      } else if (col.type.includes('tinyint(1)')) {
+        inputHtml = `
+          <select class="form-select" name="${escapeHtml(col.name)}">
+            <option value="1">1 (ใช้งาน / TRUE)</option>
+            <option value="0">0 (ไม่ใช้งาน / FALSE)</option>
+          </select>
+        `;
+      } else if (col.type.includes('text') || col.type.includes('blob')) {
+        inputHtml = `
+          <textarea class="form-textarea" name="${escapeHtml(col.name)}" rows="3" ${isRequired ? 'required' : ''} placeholder="${col.nullable === 'YES' ? 'เว้นว่างไว้หากเป็น NULL' : 'กรุณากรอกข้อมูล'}"></textarea>
+        `;
+      } else {
+        const isNum = col.type.includes('int') || col.type.includes('decimal') || col.type.includes('float');
+        inputHtml = `
+          <input class="form-input" type="${isNum ? 'number' : 'text'}" name="${escapeHtml(col.name)}" ${isRequired ? 'required' : ''} placeholder="${col.nullable === 'YES' ? 'เว้นว่างไว้หากเป็น NULL' : 'กรุณากรอกข้อมูล'}">
+        `;
+      }
+
+      return `
+        <div class="form-field">
+          <label class="form-label" style="display:flex; justify-content:space-between;">
+            <span>${escapeHtml(col.name)} ${isRequired ? '*' : ''}</span>
+            <span class="text-muted t-small">${escapeHtml(col.type)}</span>
+          </label>
+          ${inputHtml}
+          ${col.comment ? `<div class="text-muted t-small mt-1">${escapeHtml(col.comment)}</div>` : ''}
+        </div>
+      `;
+    }).join('');
+
+    modal.classList.add('is-open');
+  },
+
+  openEditDbRowModal(idx) {
+    const row = currentTableRows[idx];
+    if (!row) return;
+
+    const modal = document.getElementById('modal-db-row');
+    const titleEl = document.getElementById('modal-db-row-title');
+    const fieldsContainer = document.getElementById('db-row-form-fields');
+    const pkValInput = document.getElementById('db-row-pk-val');
+    if (!modal || !fieldsContainer) return;
+
+    const pk = currentTablePk;
+    const pkVal = row[pk];
+    pkValInput.value = pkVal;
+    titleEl.textContent = `✏️ แก้ไขข้อมูล: ${currentDbTable} (${pk}: ${pkVal})`;
+
+    fieldsContainer.innerHTML = currentTableColumns.map(col => {
+      const isPk = col.name === pk;
+      const curVal = row[col.name];
+
+      if (isPk) {
+        return `
+          <div class="form-field">
+            <label class="form-label">${escapeHtml(col.name)} <span class="badge badge-priority-emergency" style="font-size:0.65rem;">PRIMARY KEY</span></label>
+            <input class="form-input" disabled value="${escapeHtml(String(curVal != null ? curVal : ''))}">
+          </div>
+        `;
+      }
+      if (col.name === 'updated_at') {
+        return `
+          <div class="form-field">
+            <label class="form-label">${escapeHtml(col.name)} <span class="text-muted t-small">(Timestamp)</span></label>
+            <input class="form-input" disabled value="จะอัปเดตอัตโนมัติ (NOW)">
+          </div>
+        `;
+      }
+
+      const isRequired = col.nullable === 'NO' && col.defaultValue === null;
+      let inputHtml = '';
+
+      if (col.type.startsWith('enum(')) {
+        const matches = col.type.match(/'([^']+)'/g) || [];
+        const opts = matches.map(s => s.replace(/'/g, ''));
+        inputHtml = `
+          <select class="form-select" name="${escapeHtml(col.name)}" ${isRequired ? 'required' : ''}>
+            ${col.nullable === 'YES' ? '<option value="">(NULL)</option>' : ''}
+            ${opts.map(o => `<option value="${escapeHtml(o)}" ${curVal === o ? 'selected' : ''}>${escapeHtml(o)}</option>`).join('')}
+          </select>
+        `;
+      } else if (col.type.includes('tinyint(1)')) {
+        inputHtml = `
+          <select class="form-select" name="${escapeHtml(col.name)}">
+            <option value="1" ${curVal == 1 ? 'selected' : ''}>1 (ใช้งาน / TRUE)</option>
+            <option value="0" ${curVal == 0 ? 'selected' : ''}>0 (ไม่ใช้งาน / FALSE)</option>
+          </select>
+        `;
+      } else if (col.type.includes('text') || col.type.includes('blob')) {
+        inputHtml = `
+          <textarea class="form-textarea" name="${escapeHtml(col.name)}" rows="3" ${isRequired ? 'required' : ''}>${escapeHtml(String(curVal != null ? curVal : ''))}</textarea>
+        `;
+      } else {
+        const isNum = col.type.includes('int') || col.type.includes('decimal') || col.type.includes('float');
+        inputHtml = `
+          <input class="form-input" type="${isNum ? 'number' : 'text'}" name="${escapeHtml(col.name)}" value="${escapeHtml(String(curVal != null ? curVal : ''))}" ${isRequired ? 'required' : ''}>
+        `;
+      }
+
+      return `
+        <div class="form-field">
+          <label class="form-label" style="display:flex; justify-content:space-between;">
+            <span>${escapeHtml(col.name)} ${isRequired ? '*' : ''}</span>
+            <span class="text-muted t-small">${escapeHtml(col.type)}</span>
+          </label>
+          ${inputHtml}
+          ${col.comment ? `<div class="text-muted t-small mt-1">${escapeHtml(col.comment)}</div>` : ''}
+        </div>
+      `;
+    }).join('');
+
+    modal.classList.add('is-open');
+  },
+
+  closeDbRowModal() {
+    const modal = document.getElementById('modal-db-row');
+    if (modal) modal.classList.remove('is-open');
+  },
+
+  async saveDbRow(e) {
+    e.preventDefault();
+    const pkVal = document.getElementById('db-row-pk-val').value;
+    const form = e.target;
+    const formData = new FormData(form);
+    const payload = {};
+    for (const [key, value] of formData.entries()) {
+      payload[key] = value;
+    }
+
+    const submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn) submitBtn.disabled = true;
+
+    try {
+      let res;
+      if (pkVal) {
+        res = await fetch(`/api/database/table/${currentDbTable}/row/${encodeURIComponent(pkVal)}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        }).then(r => r.json());
+      } else {
+        res = await fetch(`/api/database/table/${currentDbTable}/row`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        }).then(r => r.json());
+      }
+
+      if (res.success) {
+        Toast.push('ok', 'สำเร็จ', res.message || 'บันทึกเรียบร้อย');
+        App.closeDbRowModal();
+        await loadTableDetails(currentDbTable);
+        await syncFromDatabase();
+      } else {
+        Toast.push('err', 'ไม่สามารถบันทึกได้', res.message);
+      }
+    } catch (err) {
+      Toast.push('err', 'เกิดข้อผิดพลาด', err.message);
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+    }
+  },
+
+  async deleteDbRow(tableName, pkVal) {
+    if (!confirm(`คุณต้องการลบข้อมูลแถว (${currentTablePk}: ${pkVal}) จากตาราง "${tableName}" ใช่หรือไม่?`)) return;
+    try {
+      const res = await fetch(`/api/database/table/${tableName}/row/${encodeURIComponent(pkVal)}`, {
+        method: 'DELETE'
+      }).then(r => r.json());
+
+      if (res.success) {
+        Toast.push('ok', 'ลบข้อมูลสำเร็จ', res.message);
+        await loadTableDetails(tableName);
+        await syncFromDatabase();
+      } else {
+        Toast.push('err', 'ไม่สามารถลบได้', res.message);
+      }
+    } catch (err) {
+      Toast.push('err', 'เกิดข้อผิดพลาด', err.message);
+    }
   },
 
   toggleLang() { STATE.ui.lang = STATE.ui.lang==='th'?'en':'th'; applyI18n(); go(STATE.ui.view); renderNotifPanel(); saveState(); },

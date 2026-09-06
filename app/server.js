@@ -165,6 +165,143 @@ app.get('/api/database/table/:name', async (req, res) => {
   }
 });
 
+// 2.2 Database Row CRUD Routes (เพิ่ม, แก้ไข, ลบ แถวข้อมูลในตารางโดยตรง)
+app.post('/api/database/table/:name/row', async (req, res) => {
+  const tableName = req.params.name;
+  if (!ALLOWED_TABLES.includes(tableName)) {
+    return res.status(400).json({ success: false, message: 'ตารางที่ระบุไม่ถูกต้องหรือไม่ได้รับอนุญาต' });
+  }
+
+  try {
+    const columns = await db.query(`
+      SELECT COLUMN_NAME as name, DATA_TYPE as dataType, IS_NULLABLE as nullable, EXTRA as extra
+      FROM information_schema.COLUMNS
+      WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?
+    `, [process.env.DB_NAME || 'hotel_case_db', tableName]);
+
+    const rowData = req.body;
+    const fields = [];
+    const values = [];
+    const placeholders = [];
+
+    columns.forEach(col => {
+      if (col.extra && col.extra.includes('auto_increment')) return;
+      if (['created_at', 'updated_at'].includes(col.name) && rowData[col.name] === undefined) return;
+
+      if (rowData[col.name] !== undefined) {
+        fields.push(`\`${col.name}\``);
+        placeholders.push('?');
+        let val = rowData[col.name];
+        if (val === '' && col.nullable === 'YES') {
+          val = null;
+        }
+        values.push(val);
+      }
+    });
+
+    if (fields.length === 0) {
+      return res.status(400).json({ success: false, message: 'ไม่มีข้อมูลคอลัมน์สำหรับเพิ่ม' });
+    }
+
+    const sql = `INSERT INTO \`${tableName}\` (${fields.join(', ')}) VALUES (${placeholders.join(', ')})`;
+    const result = await db.query(sql, values);
+
+    res.json({
+      success: true,
+      message: `เพิ่มข้อมูลในตาราง ${tableName} เรียบร้อยแล้ว`,
+      insertId: result.insertId
+    });
+  } catch (err) {
+    console.error(`Insert into ${tableName} error:`, err);
+    res.status(500).json({ success: false, message: 'ไม่สามารถเพิ่มข้อมูลได้: ' + err.message });
+  }
+});
+
+app.put('/api/database/table/:name/row/:id', async (req, res) => {
+  const tableName = req.params.name;
+  const rowId = req.params.id;
+  if (!ALLOWED_TABLES.includes(tableName)) {
+    return res.status(400).json({ success: false, message: 'ตารางที่ระบุไม่ถูกต้องหรือไม่ได้รับอนุญาต' });
+  }
+
+  try {
+    const columns = await db.query(`
+      SELECT COLUMN_NAME as name, DATA_TYPE as dataType, IS_NULLABLE as nullable, COLUMN_KEY as columnKey, EXTRA as extra
+      FROM information_schema.COLUMNS
+      WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?
+    `, [process.env.DB_NAME || 'hotel_case_db', tableName]);
+
+    const pkCol = columns.find(c => c.columnKey === 'PRI')?.name || 'id';
+    const rowData = req.body;
+    const setClauses = [];
+    const values = [];
+
+    columns.forEach(col => {
+      if (col.name === pkCol) return;
+      if (col.extra && col.extra.includes('auto_increment')) return;
+      if (col.name === 'updated_at') return;
+
+      if (rowData[col.name] !== undefined) {
+        setClauses.push(`\`${col.name}\` = ?`);
+        let val = rowData[col.name];
+        if (val === '' && col.nullable === 'YES') {
+          val = null;
+        }
+        values.push(val);
+      }
+    });
+
+    if (setClauses.length === 0) {
+      return res.status(400).json({ success: false, message: 'ไม่มีฟิลด์ที่ต้องการแก้ไข' });
+    }
+
+    values.push(rowId);
+    const sql = `UPDATE \`${tableName}\` SET ${setClauses.join(', ')} WHERE \`${pkCol}\` = ?`;
+    await db.query(sql, values);
+
+    res.json({
+      success: true,
+      message: `บันทึกการแก้ไขข้อมูลในตาราง ${tableName} เรียบร้อยแล้ว`
+    });
+  } catch (err) {
+    console.error(`Update ${tableName} error:`, err);
+    res.status(500).json({ success: false, message: 'ไม่สามารถอัปเดตข้อมูลได้: ' + err.message });
+  }
+});
+
+app.delete('/api/database/table/:name/row/:id', async (req, res) => {
+  const tableName = req.params.name;
+  const rowId = req.params.id;
+  if (!ALLOWED_TABLES.includes(tableName)) {
+    return res.status(400).json({ success: false, message: 'ตารางที่ระบุไม่ถูกต้องหรือไม่ได้รับอนุญาต' });
+  }
+
+  if (tableName === 'users' && String(rowId) === '1') {
+    return res.status(400).json({ success: false, message: 'ไม่อนุญาตให้ลบบัญชีผู้ดูแลระบบหลัก' });
+  }
+
+  try {
+    const columns = await db.query(`
+      SELECT COLUMN_NAME as name, COLUMN_KEY as columnKey
+      FROM information_schema.COLUMNS
+      WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?
+    `, [process.env.DB_NAME || 'hotel_case_db', tableName]);
+
+    const pkCol = columns.find(c => c.columnKey === 'PRI')?.name || 'id';
+    const sql = `DELETE FROM \`${tableName}\` WHERE \`${pkCol}\` = ?`;
+    await db.query(sql, [rowId]);
+
+    res.json({
+      success: true,
+      message: `ลบข้อมูลแถว (${pkCol}: ${rowId}) ออกจากตาราง ${tableName} เรียบร้อยแล้ว`
+    });
+  } catch (err) {
+    console.error(`Delete from ${tableName} error:`, err);
+    res.status(500).json({ success: false, message: 'ไม่สามารถลบข้อมูลได้: ' + err.message });
+  }
+});
+
+
 // 3. Auth Routes (ระบบล็อกอินจริงด้วย MySQL)
 // -----------------------------------------------------------------------------
 app.post('/api/auth/login', async (req, res) => {
