@@ -25,14 +25,18 @@
             <input class="form-search" type="search" id="search-input" oninput="App.renderList()" placeholder="ค้นหา..." data-i18n-placeholder="list.searchPlaceholder">
             <span class="kbd-hint"><span class="kbd">/</span></span>
           </div>
-          <select class="form-select" id="filter-status" onchange="App.renderList()"></select>
-          <select class="form-select" id="filter-priority" onchange="App.renderList()"></select>
-          <select class="form-select" id="filter-dept" onchange="App.renderList()"></select>
-          <select class="form-select" id="filter-category" onchange="App.renderList()"></select>
-          <select class="form-select" id="filter-assignee" onchange="App.renderList()"></select>
-          <select class="form-select" id="filter-sla" onchange="App.renderList()"></select>
-          <input class="form-input" type="date" id="filter-date-from" onchange="App.renderList()" style="width:auto;">
-          <input class="form-input" type="date" id="filter-date-to" onchange="App.renderList()" style="width:auto;">
+
+          <!-- ระบบ Filter ซ่อนไว้ชั่วคราวตามคำขอ -->
+          <div id="filter-group" class="filter-group hidden" style="display:none;">
+            <select class="form-select" id="filter-status" onchange="App.renderList()"></select>
+            <select class="form-select" id="filter-priority" onchange="App.renderList()"></select>
+            <select class="form-select" id="filter-dept" onchange="App.renderList()"></select>
+            <select class="form-select" id="filter-category" onchange="App.renderList()"></select>
+            <select class="form-select" id="filter-assignee" onchange="App.renderList()"></select>
+            <select class="form-select" id="filter-sla" onchange="App.renderList()"></select>
+            <input class="form-input" type="date" id="filter-date-from" onchange="App.renderList()" style="width:auto;">
+            <input class="form-input" type="date" id="filter-date-to" onchange="App.renderList()" style="width:auto;">
+          </div>
         </div>
 
         <div id="chip-row" class="chip-row"></div>

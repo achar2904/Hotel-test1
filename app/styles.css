@@ -489,7 +489,7 @@ button:focus-visible, a:focus-visible, .btn:focus-visible, .pill-nav:focus-visib
   box-shadow: 0 0 0 3px var(--accent-focus-ring);
   outline: none;
 }
-.search-wrap { position: relative; flex: 1; min-width: 200px; }
+.search-wrap { position: relative; flex: 1; min-width: 200px; max-width: 440px; }
 .search-wrap::before {
   content: ""; position: absolute; left: 16px; top: 50%; width: 16px; height: 16px;
   transform: translateY(-50%);
@@ -1171,6 +1171,7 @@ svg.trend path { transition: stroke-dashoffset 900ms var(--ease-out); }
   .filter-row .search-wrap {
     grid-column: 1 / -1;
     width: 100%;
+    max-width: 100%;
   }
   .filter-row .form-select, .filter-row .form-input {
     width: 100% !important;
