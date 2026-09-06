@@ -18,6 +18,7 @@ node_modules/
 *.sqlite
 *.sqlite3
 *.db
+mysql/
 
 # OS Generated
 Thumbs.db

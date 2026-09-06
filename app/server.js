@@ -46,9 +46,28 @@ function renderTemplates() {
   return html;
 }
 
-const server = http.createServer((req, res) => {
+const db = require('./db');
+
+// ตรวจสอบสถานะการเชื่อมต่อ MySQL เมื่อเริ่มเซิร์ฟเวอร์
+db.testConnection();
+
+const server = http.createServer(async (req, res) => {
   const parsedUrl = url.parse(req.url, true);
   let pathname = parsedUrl.pathname;
+
+  // API สถานะฐานข้อมูล
+  if (pathname === '/api/db-status') {
+    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+    res.end(JSON.stringify({
+      success: true,
+      connected: db.isConnected(),
+      database: process.env.DB_NAME || 'hotel_case_db',
+      host: process.env.DB_HOST || 'localhost',
+      port: process.env.DB_PORT || 3306,
+      engine: 'MySQL / MariaDB'
+    }));
+    return;
+  }
 
   // ตรวจสอบ security: ห้ามไปที่ parent directories
   if (pathname.includes('..')) {
