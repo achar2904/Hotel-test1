@@ -21,24 +21,23 @@
     </div>
     <h1 class="login-title" data-i18n="login.title">ระบบแจ้งเคสภายในโรงแรม</h1>
     <p class="login-sub">The Regent Cha-am Beach Resort & VALA</p>
-    <button class="btn-google" onclick="App.loginAs('staff')">
-      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-        <path fill="#4285F4" d="M22.5 12.3c0-.8-.1-1.5-.2-2.2H12v4.2h5.9c-.3 1.4-1 2.6-2.2 3.4v2.8h3.6c2.1-1.9 3.2-4.8 3.2-8.2z"/>
-        <path fill="#34A853" d="M12 23c3 0 5.5-1 7.3-2.7l-3.6-2.8c-1 .7-2.3 1.1-3.7 1.1-2.8 0-5.2-1.9-6.1-4.5H2.2v2.9C4 20.5 7.7 23 12 23z"/>
-        <path fill="#FBBC05" d="M5.9 14.1c-.2-.7-.4-1.4-.4-2.1s.1-1.5.4-2.1V7H2.2C1.4 8.5 1 10.2 1 12s.4 3.5 1.2 5l3.7-2.9z"/>
-        <path fill="#EA4335" d="M12 5.4c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.5 2.1 15 1 12 1 7.7 1 4 3.5 2.2 7l3.7 2.9C6.8 7.3 9.2 5.4 12 5.4z"/>
-      </svg>
-      <span data-i18n="login.google">ลงชื่อเข้าใช้ด้วย Google</span>
-    </button>
-    <p class="login-foot" data-i18n="login.footer">ต้องมีบัญชีในโดเมนของโรงแรมเท่านั้น</p>
-    <div class="demo-picker">
-      <div class="demo-title" data-i18n="login.demoAs">Demo — sign in as</div>
-      <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">
-        <button class="pill-nav" onclick="App.loginAs('staff')" data-i18n="role.staff">Staff</button>
-        <button class="pill-nav" onclick="App.loginAs('dept_head')" data-i18n="role.dept_head">Dept Head</button>
-        <button class="pill-nav" onclick="App.loginAs('admin')" data-i18n="role.admin">Admin</button>
-        <button class="pill-nav" onclick="App.loginAs('owner')" data-i18n="role.owner">Owner</button>
+    <form id="login-form" onsubmit="App.handleLogin(event)" style="margin-top:20px; text-align:left;">
+      <div class="form-field">
+        <label class="form-label" for="login-username">ชื่อผู้ใช้ หรือ อีเมล</label>
+        <input class="form-input" id="login-username" required placeholder="admin หรือ อีเมลพนักงาน" autocomplete="username">
       </div>
+      <div class="form-field">
+        <label class="form-label" for="login-password">รหัสผ่าน</label>
+        <input class="form-input" id="login-password" type="password" required placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn btn-primary btn-lg w-full mt-2" style="justify-content:center;">
+        <span>เข้าสู่ระบบ</span>
+      </button>
+    </form>
+
+    <div style="margin-top:24px; padding-top:16px; border-top:1px dashed var(--border-hairline); font-size:0.8rem; color:var(--text-muted);">
+      <div>💡 <strong>บัญชีเริ่มต้นของผู้ดูแลระบบ (Admin):</strong></div>
+      <div style="font-family:var(--font-mono); margin-top:4px;">Username: <strong>admin</strong> | Password: <strong>admin123</strong></div>
     </div>
   </div>
 </div>
@@ -62,20 +61,8 @@
   </div>
     <div class="topbar-spacer"></div>
     <div class="topbar-tools">
-      <span class="sync-indicator" title="Simulated 30s polling"><span class="sync-dot"></span><span id="sync-text">synced now</span></span>
-      <label class="sr-only" for="role-select" data-i18n="app.roleLabel">สลับสิทธิ์</label>
-      <select id="role-select" class="form-select" onchange="App.setRole(this.value)" style="padding:8px 12px; width:auto; font-size:0.85rem;">
-        <option value="staff">Staff</option>
-        <option value="dept_head">Dept Head</option>
-        <option value="admin">Admin</option>
-        <option value="owner">Owner</option>
-      </select>
-      <label class="sr-only" for="speed-select">Demo clock speed</label>
-      <select id="speed-select" class="form-select" onchange="App.setSpeed(this.value)" style="padding:8px 12px; width:auto; font-size:0.85rem;" title="Demo clock speed">
-        <option value="1">1× real</option>
-        <option value="60">60× (1min→1s)</option>
-        <option value="600">600× (10min→1s)</option>
-      </select>
+      <span class="sync-indicator" title="Connected"><span class="sync-dot"></span><span id="sync-text">MySQL Online</span></span>
+      <span class="badge badge-role" id="topbar-role-badge">ADMIN</span>
       <button id="lang-toggle" class="pill-nav" onclick="App.toggleLang()" aria-label="Switch language">TH / EN</button>
       <button class="btn-icon" onclick="App.toggleNotifs()" aria-label="Notifications">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
@@ -126,16 +113,20 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         <span data-i18n="nav.config">Config</span>
       </button>
+      <button class="nav-item" data-nav="users" onclick="App.go('users')" data-perm="users">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span data-i18n="nav.users">จัดการผู้ใช้งาน</span>
+        <span class="nav-count" id="nav-count-users">0</span>
+      </button>
 
       <div class="sidebar-foot">
         <div class="user-card">
-          <div class="user-avatar" id="user-avatar">SC</div>
+          <div class="user-avatar" id="user-avatar">AD</div>
           <div style="min-width:0;">
-            <div class="t-caption-bold" id="current-user">Staff</div>
-            <div class="t-small text-muted" id="current-role">staff</div>
+            <div class="t-caption-bold" id="current-user">Administrator</div>
+            <div class="t-small text-muted" id="current-role">admin</div>
           </div>
         </div>
-        <button class="btn-ghost btn-sm mt-2" style="width:100%; justify-content:center;" onclick="App.resetDemo()" data-i18n="app.resetDemo">รีเซ็ตข้อมูล Demo</button>
       </div>
     </nav>
     <div id="sidebar-backdrop" class="sidebar-backdrop" onclick="App.toggleSidebar()" aria-hidden="true"></div>
@@ -458,6 +449,148 @@
           </div>
         </div>
       </section>
+      <section id="view-users" class="view hidden">
+  <div class="page-header">
+    <div class="page-title">
+      <h1 class="t-section" data-i18n="users.title">จัดการผู้ใช้งานและกำหนดสิทธิ์</h1>
+      <span class="badge badge-count" id="users-count">0</span>
+    </div>
+    <div class="row gap-2">
+      <button class="btn btn-primary" onclick="App.openCreateUserModal()">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span>เพิ่มผู้ใช้งานใหม่</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ข้อมูลระดับสิทธิ์ในระบบ (Role Permissions Guide) -->
+  <div class="card mb-4" style="background:var(--surface-elev); border-left:4px solid var(--accent);">
+    <div class="t-caption-bold mb-2" style="color:var(--text-emphasis);">ระดับสิทธิ์การเข้าถึงระบบ (Role Permissions):</div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; font-size:0.8rem;">
+      <div style="padding:8px 10px; background:var(--surface-2); border-radius:8px;">
+        <span class="badge badge-priority-emergency" style="margin-bottom:4px;">ADMIN</span>
+        <div style="font-weight:600; color:var(--text-base);">ผู้ดูแลระบบ</div>
+        <div class="text-muted t-small">จัดการผู้ใช้ทั้งหมด, ตั้งค่าระบบ SLA, ตรวจสอบ Audit Log</div>
+      </div>
+      <div style="padding:8px 10px; background:var(--surface-2); border-radius:8px;">
+        <span class="badge" style="background:#EBF8FF; color:#2B6CB0; margin-bottom:4px;">OWNER</span>
+        <div style="font-weight:600; color:var(--text-base);">ผู้บริหาร (GM/Owner)</div>
+        <div class="text-muted t-small">ดูภาพรวม Dashboard ทุกแผนก, สรุปสถิติ, ผังห้องพัก</div>
+      </div>
+      <div style="padding:8px 10px; background:var(--surface-2); border-radius:8px;">
+        <span class="badge" style="background:#FEF3C7; color:#B45309; margin-bottom:4px;">DEPT HEAD</span>
+        <div style="font-weight:600; color:var(--text-base);">หัวหน้าแผนก</div>
+        <div class="text-muted t-small">จัดการเคสในแผนกตนเอง, มอบหมายงานให้ช่าง, ดู Dashboard แผนก</div>
+      </div>
+      <div style="padding:8px 10px; background:var(--surface-2); border-radius:8px;">
+        <span class="badge" style="background:#F1F5F9; color:#475569; margin-bottom:4px;">STAFF</span>
+        <div style="font-weight:600; color:var(--text-base);">พนักงานทั่วไป</div>
+        <div class="text-muted t-small">แจ้งเคสใหม่, ดูงานที่รับมอบหมาย, อัปเดตสถานะและตอบแชท</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ตารางรายชื่อผู้ใช้งาน -->
+  <div class="table-scroll">
+    <table class="case-table user-table" aria-label="User list">
+      <thead>
+        <tr>
+          <th>พนักงาน</th>
+          <th>ชื่อผู้ใช้ / อีเมล</th>
+          <th>แผนก</th>
+          <th>สิทธิ์ในระบบ</th>
+          <th>เบอร์ติดต่อ</th>
+          <th>สถานะ</th>
+          <th style="text-align:right;">จัดการ</th>
+        </tr>
+      </thead>
+      <tbody id="users-tbody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Modal: เพิ่ม / แก้ไขผู้ใช้งาน -->
+<div id="modal-user" class="modal-backdrop">
+  <div class="modal" role="dialog" aria-modal="true" style="max-width:540px;">
+    <div class="modal-head">
+      <h3 class="modal-title" id="modal-user-title">เพิ่มผู้ใช้งานใหม่</h3>
+      <button class="btn-icon" onclick="App.closeUserModal()" aria-label="Close">✕</button>
+    </div>
+    <form id="form-user" onsubmit="App.saveUser(event)">
+      <input type="hidden" id="user-form-id" value="">
+      
+      <div class="form-grid-2col">
+        <div class="form-field">
+          <label class="form-label" for="u-fullname">ชื่อ-นามสกุล *</label>
+          <input class="form-input" id="u-fullname" required placeholder="เช่น สมชาย ใจดี">
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="u-nickname">ชื่อเล่น</label>
+          <input class="form-input" id="u-nickname" placeholder="เช่น ชาย">
+        </div>
+      </div>
+
+      <div class="form-grid-2col">
+        <div class="form-field">
+          <label class="form-label" for="u-username">ชื่อผู้ใช้ (Username) *</label>
+          <input class="form-input" id="u-username" required placeholder="เช่น somchai.s">
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="u-password">รหัสผ่าน *</label>
+          <input class="form-input" id="u-password" type="password" placeholder="กำหนดรหัสผ่าน">
+          <div id="u-password-hint" class="text-muted t-small hidden">เว้นว่างไว้หากไม่ต้องการเปลี่ยน</div>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label" for="u-email">อีเมล *</label>
+        <input class="form-input" id="u-email" type="email" required placeholder="somchai@regent-chaam.com">
+      </div>
+
+      <div class="form-grid-2col">
+        <div class="form-field">
+          <label class="form-label" for="u-dept">แผนก *</label>
+          <select class="form-select" id="u-dept" required>
+            <option value="1">IT - เทคโนโลยีสารสนเทศ</option>
+            <option value="2">HK - แผนกแม่บ้าน</option>
+            <option value="3">ENG - ช่างและวิศวกรรม</option>
+            <option value="4">FRONT - แผนกต้อนรับ</option>
+            <option value="5">SECURITY - รักษาความปลอดภัย</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="u-role">สิทธิ์ในระบบ (Role) *</label>
+          <select class="form-select" id="u-role" required>
+            <option value="staff">Staff (พนักงานทั่วไป)</option>
+            <option value="dept_head">Dept Head (หัวหน้าแผนก)</option>
+            <option value="admin">Admin (ผู้ดูแลระบบ)</option>
+            <option value="owner">Owner (ผู้บริหาร / GM)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-grid-2col">
+        <div class="form-field">
+          <label class="form-label" for="u-phone">เบอร์โทรศัพท์</label>
+          <input class="form-input" id="u-phone" placeholder="08x-xxx-xxxx">
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="u-active">สถานะบัญชี</label>
+          <select class="form-select" id="u-active">
+            <option value="1">เปิดใช้งาน (Active)</option>
+            <option value="0">ระงับการใช้งาน (Inactive)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-foot">
+        <button type="button" class="btn btn-outlined" onclick="App.closeUserModal()">ยกเลิก</button>
+        <button type="submit" class="btn btn-primary" id="btn-save-user">บันทึกผู้ใช้งาน</button>
+      </div>
+    </form>
+  </div>
+</div>
+
     </main>
   </div>
 

@@ -16,20 +16,8 @@
   </div>
     <div class="topbar-spacer"></div>
     <div class="topbar-tools">
-      <span class="sync-indicator" title="Simulated 30s polling"><span class="sync-dot"></span><span id="sync-text">synced now</span></span>
-      <label class="sr-only" for="role-select" data-i18n="app.roleLabel">สลับสิทธิ์</label>
-      <select id="role-select" class="form-select" onchange="App.setRole(this.value)" style="padding:8px 12px; width:auto; font-size:0.85rem;">
-        <option value="staff">Staff</option>
-        <option value="dept_head">Dept Head</option>
-        <option value="admin">Admin</option>
-        <option value="owner">Owner</option>
-      </select>
-      <label class="sr-only" for="speed-select">Demo clock speed</label>
-      <select id="speed-select" class="form-select" onchange="App.setSpeed(this.value)" style="padding:8px 12px; width:auto; font-size:0.85rem;" title="Demo clock speed">
-        <option value="1">1× real</option>
-        <option value="60">60× (1min→1s)</option>
-        <option value="600">600× (10min→1s)</option>
-      </select>
+      <span class="sync-indicator" title="Connected"><span class="sync-dot"></span><span id="sync-text">MySQL Online</span></span>
+      <span class="badge badge-role" id="topbar-role-badge">ADMIN</span>
       <button id="lang-toggle" class="pill-nav" onclick="App.toggleLang()" aria-label="Switch language">TH / EN</button>
       <button class="btn-icon" onclick="App.toggleNotifs()" aria-label="Notifications">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>

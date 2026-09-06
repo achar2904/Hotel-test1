@@ -12,10 +12,10 @@
 const DICT = {
   th: {
     'app.brand':'Hotel Case','app.roleLabel':'สลับสิทธิ์','app.resetDemo':'รีเซ็ตข้อมูล Demo',
+    'role.admin':'ผู้ดูแลระบบ (Admin)','role.owner':'ผู้บริหาร (GM/Owner)','role.dept_head':'หัวหน้าแผนก','role.staff':'พนักงานทั่วไป',
     'login.title':'ระบบแจ้งเคสภายในโรงแรม','login.subtitle':'เข้าสู่ระบบด้วยบัญชี Google ขององค์กร',
     'login.google':'ลงชื่อเข้าใช้ด้วย Google','login.footer':'ต้องมีบัญชีในโดเมนของโรงแรมเท่านั้น','login.demoAs':'Demo — เข้าใช้เป็น',
-    'role.staff':'Staff','role.dept_head':'Dept Head','role.admin':'Admin','role.owner':'Owner',
-    'nav.cases':'รายการเคส','nav.create':'แจ้งเคสใหม่','nav.dashboard':'Dashboard เคส','nav.rooms':'Dashboard ห้อง','nav.audit':'Audit log','nav.config':'ตั้งค่า',
+    'nav.cases':'รายการเคส','nav.create':'แจ้งเคสใหม่','nav.dashboard':'Dashboard เคส','nav.rooms':'Dashboard ห้อง','nav.audit':'Audit log','nav.config':'ตั้งค่า','nav.users':'จัดการผู้ใช้งาน','users.title':'จัดการผู้ใช้งานและกำหนดสิทธิ์',
     'tab.list':'เคส','tab.new':'แจ้ง','tab.dash':'Dash','tab.rooms':'ห้อง',
     'list.title':'รายการเคส','list.newCase':'แจ้งเคสใหม่','list.searchPlaceholder':'ค้นหาเคส หมายเลข หัวข้อ ห้อง...',
     'filter.allStatus':'สถานะทั้งหมด','filter.allPriority':'ความสำคัญทั้งหมด','filter.allDept':'ทุกแผนก','filter.allCategory':'ทุกหมวดหมู่','filter.allAssignee':'ผู้รับผิดชอบทุกคน','filter.unassigned':'ยังไม่มีผู้รับผิดชอบ',
@@ -74,10 +74,10 @@ const DICT = {
   },
   en: {
     'app.brand':'Hotel Case','app.roleLabel':'Switch role','app.resetDemo':'Reset demo data',
+    'role.admin':'Administrator','role.owner':'Owner / GM','role.dept_head':'Department Head','role.staff':'Staff',
     'login.title':'Hotel Case Reporting System','login.subtitle':'Sign in with your organization Google account',
     'login.google':'Sign in with Google','login.footer':'Only accounts in the hotel domain can sign in','login.demoAs':'Demo — sign in as',
-    'role.staff':'Staff','role.dept_head':'Dept Head','role.admin':'Admin','role.owner':'Owner',
-    'nav.cases':'Cases','nav.create':'New case','nav.dashboard':'Case dashboard','nav.rooms':'Room dashboard','nav.audit':'Audit log','nav.config':'Settings',
+    'nav.cases':'Cases','nav.create':'New case','nav.dashboard':'Case dashboard','nav.rooms':'Room dashboard','nav.audit':'Audit log','nav.config':'Settings','nav.users':'Users','users.title':'User Management & Permissions',
     'tab.list':'Cases','tab.new':'New','tab.dash':'Dash','tab.rooms':'Rooms',
     'list.title':'Cases','list.newCase':'New case','list.searchPlaceholder':'Search case #, subject, room...',
     'filter.allStatus':'All statuses','filter.allPriority':'All priorities','filter.allDept':'All departments','filter.allCategory':'All categories','filter.allAssignee':'All assignees','filter.unassigned':'Unassigned',
@@ -201,134 +201,48 @@ function resetAll() {
 }
 
 // ============================================================
-// Virtual clock (demo speed)
+// Real Production Time & Database Synchronization
 // ============================================================
-const CLOCK_ORIGIN = new Date('2026-08-20T14:30:00+07:00').getTime();
 function now() {
-  const realDelta = Date.now() - STATE.ui.clockBaseReal;
-  return CLOCK_ORIGIN + STATE.ui.clockBaseVirtual + realDelta * STATE.ui.speed;
-}
-function setSpeed(s) {
-  // Snapshot current virtual time, reset base so speed change is seamless
-  STATE.ui.clockBaseVirtual = now() - CLOCK_ORIGIN;
-  STATE.ui.clockBaseReal = Date.now();
-  STATE.ui.speed = Number(s) || 1;
-  saveState();
+  return Date.now();
 }
 
-// ============================================================
-// Seed demo data
-// ============================================================
 function seedDemo() {
-  const mAgo = m => CLOCK_ORIGIN - m*60000;
-  const mAhead = m => CLOCK_ORIGIN + m*60000;
-  const uid = (function(){let n=0;return ()=>'u'+(++n);})();
-  const dateKey = ts => { const d = new Date(ts); const y=d.getFullYear(); const mo=String(d.getMonth()+1).padStart(2,'0'); const dd=String(d.getDate()).padStart(2,'0'); return y+mo+dd; };
-
-  STATE.counters = { '20260819':21, '20260820':7 }; // next running numbers
-
-  function seedCase(o) {
-    const id = uid();
-    const dk = dateKey(o.createdAt);
-    STATE.comments[id] = o.timeline.map(t => ({ id:'c'+id+'_'+Math.random().toString(36).slice(2,7), caseUid:id, sender:t.sender, dept:t.dept||'', text:t.text, type:t.type||'USER', createdAt:t.t, attachment:t.attachment||null }));
-    const c = {
-      caseUid:id, caseNo:o.caseNo, subject:o.subject, dept:o.dept, deptFrom:o.deptFrom||o.dept,
-      location:o.location, room:o.room||'', category:o.category, priority:o.priority, status:o.status,
-      assignee:o.assignee||null, reporter:o.reporter, createdAt:o.createdAt, createdBy:o.reporter,
-      sla:o.sla, due:o.due, ackAt:o.ackAt||null, resolvedAt:o.resolvedAt||null, closedAt:o.closedAt||null,
-      reminders:o.reminders||0, lastReminderAt:o.lastReminderAt||null, escalatedAt:o.escalatedAt||null,
-      lastCommentAt: STATE.comments[id].length ? STATE.comments[id][STATE.comments[id].length-1].createdAt : o.createdAt,
-      hasUnread: false, affects:!!o.affects, updatedAt:o.createdAt, updatedBy:o.reporter, deleted:false,
-    };
-    STATE.cases.push(c);
-    STATE.logs.push({ id:'l'+Math.random().toString(36).slice(2,9), caseUid:id, event:'CASE_CREATED', actor:c.createdBy, at:c.createdAt, meta:{ priority:c.priority, dept:c.dept } });
-    return c;
-  }
-
-  seedCase({ caseNo:'CASE-20260820-0007', subject:'เน็ตหลุด ห้อง 301 แขกจะประชุมออนไลน์', dept:'IT', location:'Guest Room', room:'301', category:'cat.IT.network', priority:'EMERGENCY', status:'NEW', reporter:'พนักงานเบลบอย โอ๊ต', createdAt:mAgo(4), sla:20, due:mAhead(16),
-    timeline:[{t:mAgo(4), sender:'พนักงานเบลบอย โอ๊ต', dept:'FRONT', text:'แขกห้อง 301 แจ้งว่าเน็ตหลุด กำลังจะประชุม 15:00'}] });
-
-  seedCase({ caseNo:'CASE-20260820-0006', subject:'แอร์ไม่เย็น ห้อง 502 ใช้เวลาปกติแล้ว', dept:'ENG', deptFrom:'HK', location:'Guest Room', room:'502', category:'cat.ENG.ac', priority:'URGENT', status:'IN_PROGRESS', assignee:'ช่างประยุทธ์', reporter:'HK พี่แนน', createdAt:mAgo(28), sla:40, due:mAhead(12), ackAt:mAgo(22), affects:true,
-    timeline:[
-      {t:mAgo(28), sender:'HK พี่แนน', dept:'HK', text:'ห้อง 502 แอร์ไม่เย็น ตั้งไว้ 22 แต่แขกบอกยังร้อน'},
-      {t:mAgo(24), sender:'System', text:'Case transferred from HK to ENG', type:'SYSTEM'},
-      {t:mAgo(22), sender:'ช่างประยุทธ์', dept:'ENG', text:'รับเรื่อง กำลังขึ้นไปเช็คคอมเพรสเซอร์'},
-      {t:mAgo(10), sender:'ช่างประยุทธ์', dept:'ENG', text:'ล้างฟิลเตอร์แล้ว รอดูอุณหภูมิ 20 นาที'}
-    ]});
-
-  seedCase({ caseNo:'CASE-20260820-0005', subject:'น้ำรั่วจากเพดาน ห้อง 203', dept:'ENG', deptFrom:'HK', location:'Guest Room', room:'203', category:'cat.ENG.plumbing', priority:'EMERGENCY', status:'IN_PROGRESS', assignee:'ช่างประยุทธ์', reporter:'HK พี่แนน', createdAt:mAgo(55), sla:20, due:mAgo(35), reminders:2, lastReminderAt:mAgo(25), affects:true, ackAt:mAgo(45),
-    timeline:[
-      {t:mAgo(55), sender:'HK พี่แนน', dept:'HK', text:'น้ำหยดจากเพดานห้อง 203 มุมห้องน้ำ'},
-      {t:mAgo(50), sender:'System', text:'Case transferred from HK to ENG', type:'SYSTEM'},
-      {t:mAgo(48), sender:'System', text:'Room 203 auto-closed (AffectsRoomSalability)', type:'SYSTEM'},
-      {t:mAgo(35), sender:'System', text:'Reminder #1 sent to ช่างประยุทธ์', type:'SYSTEM'},
-      {t:mAgo(25), sender:'System', text:'Reminder #2 sent to ช่างประยุทธ์', type:'SYSTEM'},
-      {t:mAgo(20), sender:'ช่างประยุทธ์', dept:'ENG', text:'ต้องเปิดฝ้า รอเบิกอุปกรณ์ 30 นาที'}
-    ]});
-
-  seedCase({ caseNo:'CASE-20260820-0004', subject:'ทีวีเปิดไม่ติด ห้อง 410', dept:'IT', location:'Guest Room', room:'410', category:'cat.IT.tv', priority:'NORMAL', status:'RESOLVED', assignee:'IT วีระ', reporter:'HK พี่ตุ๊ก', createdAt:mAgo(120), sla:60, due:mAgo(60), ackAt:mAgo(115), resolvedAt:mAgo(88),
-    timeline:[
-      {t:mAgo(120), sender:'HK พี่ตุ๊ก', dept:'HK', text:'ทีวีห้อง 410 เปิดไม่ติด กดรีโมทไม่ตอบ'},
-      {t:mAgo(115), sender:'IT วีระ', dept:'IT', text:'รับเรื่อง กำลังเช็ค'},
-      {t:mAgo(90), sender:'IT วีระ', dept:'IT', text:'สาย HDMI หลวม เสียบใหม่ใช้งานได้ปกติ'},
-      {t:mAgo(88), sender:'System', text:'Marked RESOLVED — HDMI', type:'SYSTEM'}
-    ]});
-
-  seedCase({ caseNo:'CASE-20260820-0003', subject:'กุญแจการ์ดล็อกห้อง 205 ไม่อ่าน', dept:'FRONT', location:'Guest Room', room:'205', category:'cat.FRONT.complaint', priority:'URGENT', status:'ACKNOWLEDGED', assignee:'FRONT พี่นก', reporter:'พนักงานเบลบอย โอ๊ต', createdAt:mAgo(15), sla:40, due:mAhead(25), ackAt:mAgo(10),
-    timeline:[
-      {t:mAgo(15), sender:'พนักงานเบลบอย โอ๊ต', dept:'FRONT', text:'แขกเช็คอินห้อง 205 การ์ดคีย์ไม่อ่าน'},
-      {t:mAgo(10), sender:'FRONT พี่นก', dept:'FRONT', text:'รับเรื่องแล้ว กำลังทำการ์ดใหม่'}
-    ]});
-
-  seedCase({ caseNo:'CASE-20260819-0021', subject:'กล้อง CCTV มุมล็อบบี้ภาพเบลอ', dept:'SECURITY', location:'Lobby', room:'', category:'cat.SECURITY.cctv', priority:'NORMAL', status:'CLOSED', assignee:'รปภ. สมเกียรติ', reporter:'ผจก. อรทัย', createdAt:mAgo(900), sla:60, due:mAgo(840), ackAt:mAgo(890), resolvedAt:mAgo(845), closedAt:mAgo(838),
-    timeline:[
-      {t:mAgo(900), sender:'ผจก. อรทัย', dept:'ADMIN', text:'ภาพกล้อง cam-02 เบลอตั้งแต่เช้า'},
-      {t:mAgo(850), sender:'รปภ. สมเกียรติ', dept:'SECURITY', text:'เช็ดเลนส์แล้ว ปกติ'},
-      {t:mAgo(845), sender:'System', text:'Marked RESOLVED', type:'SYSTEM'},
-      {t:mAgo(840), sender:'ผจก. อรทัย', dept:'ADMIN', text:'ยืนยันภาพชัดแล้ว'},
-      {t:mAgo(838), sender:'System', text:'Case CLOSED', type:'SYSTEM'}
-    ]});
-
-  seedCase({ caseNo:'CASE-20260820-0002', subject:'ผ้าปูเปื้อน ห้อง 108 ต้องเปลี่ยน', dept:'HK', location:'Guest Room', room:'108', category:'cat.HK.linen', priority:'NORMAL', status:'RESOLVED', assignee:'HK พี่ตุ๊ก', reporter:'สมชาย ใจดี', createdAt:mAgo(180), sla:60, due:mAgo(120), ackAt:mAgo(170), resolvedAt:mAgo(138),
-    timeline:[
-      {t:mAgo(180), sender:'สมชาย ใจดี', dept:'HK', text:'เปลี่ยนผ้าปูห้อง 108 หลังแขกเช็คเอาต์'},
-      {t:mAgo(140), sender:'HK พี่ตุ๊ก', dept:'HK', text:'เปลี่ยนแล้ว'},
-      {t:mAgo(138), sender:'System', text:'Marked RESOLVED', type:'SYSTEM'}
-    ]});
-
-  seedCase({ caseNo:'CASE-20260819-0018', subject:'แจ้งซ้ำ – ห้อง 502 แอร์', dept:'ENG', location:'Guest Room', room:'502', category:'cat.ENG.ac', priority:'NORMAL', status:'CANCELLED', reporter:'HK พี่แนน', createdAt:mAgo(1000), sla:60, due:mAgo(940),
-    timeline:[
-      {t:mAgo(1000), sender:'HK พี่แนน', dept:'HK', text:'แอร์ห้อง 502 อีกครั้ง'},
-      {t:mAgo(998), sender:'System', text:'Cancelled — duplicate of CASE-20260820-0006', type:'SYSTEM'}
-    ]});
-
-  // Rooms
-  const closedInit = { '203':{reason:'น้ำรั่ว', caseUid: STATE.cases.find(c=>c.caseNo==='CASE-20260820-0005').caseUid},
-                       '502':{reason:'แอร์ไม่เย็น', caseUid: STATE.cases.find(c=>c.caseNo==='CASE-20260820-0006').caseUid},
-                       '704':{reason:'ปิดซ่อม', caseUid:null},
-                       '305':{reason:'ทาสีใหม่', caseUid:null},
-                       '118':{reason:'พรมเปียก', caseUid:null} };
+  STATE.cases = [];
+  STATE.comments = {};
+  STATE.logs = [];
   STATE.rooms = [];
-  ['1','2','3','4','5','6','7'].forEach(floor => {
-    for (let i=1; i<=10; i++) {
-      const no = floor + (i<10?'0':'') + i;
-      const closed = closedInit[no];
-      STATE.rooms.push({ roomNo:no, status: closed ? 'CLOSED' : 'AVAILABLE', reason: closed?closed.reason:'', openCases: closed && closed.caseUid ? [closed.caseUid] : [] });
+  STATE.roomLogs = {};
+}
+
+async function syncFromDatabase() {
+  try {
+    const [cRes, rRes, uRes] = await Promise.all([
+      fetch('/api/cases').then(r => r.json()).catch(() => ({ success: false })),
+      fetch('/api/rooms').then(r => r.json()).catch(() => ({ success: false })),
+      fetch('/api/users').then(r => r.json()).catch(() => ({ success: false }))
+    ]);
+    if (cRes.success) {
+      STATE.cases = (cRes.cases || []).map(c => ({
+        ...c,
+        createdAt: typeof c.createdAt === 'string' ? new Date(c.createdAt).getTime() : (c.createdAt || now()),
+        due: typeof c.due === 'string' ? new Date(c.due).getTime() : (c.due || now()),
+        affects: !!c.affects,
+        reminders: c.reminders || 0
+      }));
     }
-  });
-  STATE.roomLogs = {
-    '203':[
-      { when: mAgo(48), action:'CLOSE_ROOM', reason:'น้ำรั่ว', actor:'System', caseUid: closedInit['203'].caseUid },
-      { when: mAgo(2000), action:'OPEN_ROOM', reason:'ซ่อมเสร็จ', actor:'พี่แนน (HK)', caseUid: null },
-    ],
-    '502':[
-      { when: mAgo(24), action:'CLOSE_ROOM', reason:'แอร์ไม่เย็น', actor:'System', caseUid: closedInit['502'].caseUid },
-      { when: mAgo(1440), action:'OPEN_ROOM', reason:'ทำความสะอาดเสร็จ', actor:'พี่ตุ๊ก (HK)', caseUid: null },
-    ],
-    '704':[{ when: mAgo(3000), action:'CLOSE_ROOM', reason:'ปิดซ่อม', actor:'ผจก. อรทัย', caseUid:null }],
-    '305':[{ when: mAgo(5000), action:'CLOSE_ROOM', reason:'ทาสีใหม่', actor:'ผจก. อรทัย', caseUid:null }],
-    '118':[{ when: mAgo(1200), action:'CLOSE_ROOM', reason:'พรมเปียก', actor:'HK พี่ตุ๊ก', caseUid:null }],
-  };
+    if (rRes.success) STATE.rooms = rRes.rooms || [];
+    if (uRes.success) {
+      STATE.users = uRes.users || [];
+      const countEl = document.getElementById('nav-count-users');
+      if (countEl) countEl.textContent = STATE.users.length;
+    }
+    if (STATE.ui.view === 'list') renderList();
+    if (STATE.ui.view === 'rooms') renderRooms();
+    if (STATE.ui.view === 'users') renderUsers();
+  } catch(e) {
+    console.warn('Sync from DB failed:', e);
+  }
 }
 
 // ============================================================
@@ -366,6 +280,7 @@ function canSeeRooms(){ return STATE.ui.role==='owner' || STATE.ui.role==='admin
 function canSeeDashboard(){ return STATE.ui.role !== 'staff'; }
 function canSeeConfig(){ return STATE.ui.role==='admin' || STATE.ui.role==='owner'; }
 function canSeeAudit(){ return STATE.ui.role==='admin' || STATE.ui.role==='owner'; }
+function canSeeUsers(){ return STATE.ui.role==='admin'; }
 function isDeptOrAbove(){ return STATE.ui.role==='dept_head' || STATE.ui.role==='admin' || STATE.ui.role==='owner'; }
 function canCreate(){ return true; }
 function canAct(c) {
@@ -652,19 +567,29 @@ function applyI18n() {
 }
 
 function applyRole() {
-  const u = STATE.ui.currentUser;
-  document.getElementById('current-user').textContent = u;
-  document.getElementById('current-role').textContent = t('role.'+STATE.ui.role);
-  document.getElementById('user-avatar').textContent = initials(u);
-  document.getElementById('role-select').value = STATE.ui.role;
+  const u = STATE.ui.currentUser || 'Administrator';
+  const elUser = document.getElementById('current-user');
+  if (elUser) elUser.textContent = u;
+  const elRole = document.getElementById('current-role');
+  if (elRole) elRole.textContent = STATE.ui.role ? (DICT[STATE.ui.lang]?.['role.'+STATE.ui.role] || STATE.ui.role) : '';
+  const elAvatar = document.getElementById('user-avatar');
+  if (elAvatar) elAvatar.textContent = initials(u);
+  const elRoleSel = document.getElementById('role-select');
+  if (elRoleSel) elRoleSel.value = STATE.ui.role;
+  const elTopbarBadge = document.getElementById('topbar-role-badge');
+  if (elTopbarBadge) {
+    elTopbarBadge.textContent = (STATE.ui.role || 'STAFF').toUpperCase();
+    elTopbarBadge.className = 'badge badge-role ' + (STATE.ui.role === 'admin' ? 'badge-priority-emergency' : (STATE.ui.role === 'owner' ? 'badge-priority-urgent' : ''));
+  }
   document.querySelectorAll('[data-perm="rooms"]').forEach(el => el.classList.toggle('hidden', !canSeeRooms()));
   document.querySelectorAll('[data-perm="dashboard"]').forEach(el => el.classList.toggle('hidden', !canSeeDashboard()));
   document.querySelectorAll('[data-perm="config"]').forEach(el => el.classList.toggle('hidden', !canSeeConfig()));
   document.querySelectorAll('[data-perm="audit"]').forEach(el => el.classList.toggle('hidden', !canSeeAudit()));
-  // Config nav item + audit nav item need permission attrs on the sidebar buttons
+  document.querySelectorAll('[data-perm="users"]').forEach(el => el.classList.toggle('hidden', !canSeeUsers()));
   document.querySelectorAll('.nav-item').forEach(n => {
     if (n.dataset.nav === 'config') n.classList.toggle('hidden', !canSeeConfig());
     if (n.dataset.nav === 'audit') n.classList.toggle('hidden', !canSeeAudit());
+    if (n.dataset.nav === 'users') n.classList.toggle('hidden', !canSeeUsers());
   });
 }
 
@@ -673,11 +598,13 @@ function go(view) {
   if (view === 'dashboard' && !canSeeDashboard()) view = 'list';
   if (view === 'config' && !canSeeConfig()) view = 'list';
   if (view === 'audit' && !canSeeAudit()) view = 'list';
+  if (view === 'users' && !canSeeUsers()) view = 'list';
   STATE.ui.view = view;
   document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
-  document.getElementById('view-'+view).classList.remove('hidden');
+  const targetView = document.getElementById('view-'+view);
+  if (targetView) targetView.classList.remove('hidden');
   document.querySelectorAll('.nav-item, .tabbar button').forEach(n => n.classList.toggle('is-active', n.dataset.nav===view));
-  document.getElementById('sidebar').classList.remove('is-open');
+  document.getElementById('sidebar')?.classList.remove('is-open');
   document.getElementById('sidebar-backdrop')?.classList.remove('is-open');
   if (view==='list') renderList();
   if (view==='detail') renderDetail();
@@ -685,6 +612,7 @@ function go(view) {
   if (view==='rooms') renderRooms();
   if (view==='audit') renderAudit();
   if (view==='config') renderConfig();
+  if (view==='users') renderUsers();
   window.scrollTo(0,0);
   saveState();
 }
@@ -1169,37 +1097,247 @@ function renderNotifPanel() {
     </div>`).join('');
 }
 
+// -------- Users Management --------
+async function renderUsers() {
+  const tbody = document.getElementById('users-tbody');
+  if (!tbody) return;
+  try {
+    const res = await fetch('/api/users').then(r => r.json());
+    if (res.success && Array.isArray(res.users)) {
+      STATE.users = res.users;
+    }
+  } catch (e) {
+    console.warn('Failed to fetch users from server', e);
+  }
+
+  const countEl = document.getElementById('users-count');
+  if (countEl) countEl.textContent = STATE.users.length;
+  const navCountEl = document.getElementById('nav-count-users');
+  if (navCountEl) navCountEl.textContent = STATE.users.length;
+
+  if (STATE.users.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state">ไม่พบรายชื่อผู้ใช้งาน</div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = STATE.users.map(u => {
+    const roleBadge = {
+      admin: '<span class="badge badge-priority-emergency">ADMIN</span>',
+      owner: '<span class="badge" style="background:#EBF8FF; color:#2B6CB0;">OWNER</span>',
+      dept_head: '<span class="badge" style="background:#FEF3C7; color:#B45309;">DEPT HEAD</span>',
+      staff: '<span class="badge" style="background:#F1F5F9; color:#475569;">STAFF</span>'
+    }[u.role] || `<span class="badge">${escapeHtml(u.role)}</span>`;
+
+    const statusBadge = u.is_active
+      ? '<span class="badge badge-status-resolved">ใช้งานปกติ</span>'
+      : '<span class="badge badge-status-cancelled">ระงับการใช้งาน</span>';
+
+    const deptName = u.department_name || u.department_code || (u.dept || '—');
+    const uId = u.id;
+
+    return `
+      <tr>
+        <td>
+          <div style="font-weight:600; color:var(--text-base);">${escapeHtml(u.full_name || u.name)}</div>
+          ${u.nickname ? `<div class="t-small text-muted">(${escapeHtml(u.nickname)})</div>` : ''}
+        </td>
+        <td>
+          <div>${escapeHtml(u.username || '—')}</div>
+          <div class="t-small text-muted">${escapeHtml(u.email || '—')}</div>
+        </td>
+        <td><span class="badge badge-dept">${escapeHtml(deptName)}</span></td>
+        <td>${roleBadge}</td>
+        <td><span class="t-small">${escapeHtml(u.phone || '—')}</span></td>
+        <td>${statusBadge}</td>
+        <td style="text-align:right; white-space:nowrap;">
+          <button class="btn btn-sm btn-ghost" onclick="App.openEditUserModal(${uId})" title="แก้ไข">
+            ✏️ แก้ไข
+          </button>
+          ${uId !== 1 ? `
+            <button class="btn btn-sm btn-ghost" style="color:var(--status-emergency);" onclick="App.deleteUser(${uId}, '${escapeHtml(u.full_name || u.name)}')" title="ระงับ">
+              🚫 ระงับ
+            </button>
+          ` : ''}
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
 // ============================================================
 // Public API (App.*)
 // ============================================================
 const App = {
-  loginAs(role) {
-    STATE.ui.role = role;
-    STATE.ui.currentUser = ({staff:'สมชาย ใจดี', dept_head:'FRONT พี่นก', admin:'ผจก. อรทัย', owner:'เจ้าของ นพ.'})[role];
-    document.getElementById('screen-login').classList.add('hidden');
-    document.getElementById('screen-app').classList.remove('hidden');
-    applyI18n(); applyRole();
-    go('list');
-    renderNotifCount(); renderNotifPanel();
-    saveState();
+  // Auth
+  async handleLogin(e) {
+    e.preventDefault();
+    const username = document.getElementById('login-username').value.trim();
+    const password = document.getElementById('login-password').value;
+    if (!username || !password) return;
+
+    const btn = e.target.querySelector('button[type="submit"]');
+    const oldText = btn ? btn.innerHTML : '';
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<span>กำลังเข้าสู่ระบบ...</span>';
+    }
+
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      }).then(r => r.json());
+
+      if (res.success && res.user) {
+        const u = res.user;
+        STATE.ui.currentUser = u.full_name || u.username;
+        STATE.ui.role = u.role;
+        STATE.ui.dept = u.department_code;
+        localStorage.setItem('hotel_user', JSON.stringify(u));
+
+        document.getElementById('screen-login').classList.add('hidden');
+        document.getElementById('screen-app').classList.remove('hidden');
+
+        applyI18n();
+        applyRole();
+        await syncFromDatabase();
+        go('list');
+        renderNotifCount();
+        renderNotifPanel();
+        saveState();
+
+        Toast.push('ok', 'เข้าสู่ระบบสำเร็จ', `ยินดีต้อนรับ ${u.full_name} (${u.role.toUpperCase()})`);
+      } else {
+        Toast.push('err', 'เข้าสู่ระบบไม่สำเร็จ', res.message || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      Toast.push('err', 'เกิดข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้');
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = oldText;
+      }
+    }
   },
+
   logout() {
+    localStorage.removeItem('hotel_user');
+    STATE.ui.currentUser = '';
+    STATE.ui.role = 'staff';
     document.getElementById('screen-app').classList.add('hidden');
     document.getElementById('screen-login').classList.remove('hidden');
+    const unameInput = document.getElementById('login-username');
+    if (unameInput) unameInput.value = '';
+    const pwdInput = document.getElementById('login-password');
+    if (pwdInput) pwdInput.value = '';
+    Toast.push('info', 'ออกจากระบบ', 'ออกจากระบบเรียบร้อยแล้ว');
   },
-  setRole(role) {
-    STATE.ui.role = role;
-    STATE.ui.currentUser = ({staff:'สมชาย ใจดี', dept_head:'FRONT พี่นก', admin:'ผจก. อรทัย', owner:'เจ้าของ นพ.'})[role];
-    applyRole();
-    if (STATE.ui.view==='rooms' && !canSeeRooms()) go('list');
-    else if (STATE.ui.view==='dashboard' && !canSeeDashboard()) go('list');
-    else if (STATE.ui.view==='config' && !canSeeConfig()) go('list');
-    else if (STATE.ui.view==='audit' && !canSeeAudit()) go('list');
-    else go(STATE.ui.view);
-    saveState();
+
+  // Users Management
+  renderUsers,
+  openCreateUserModal() {
+    const modal = document.getElementById('modal-user');
+    const form = document.getElementById('form-user');
+    if (!modal || !form) return;
+    form.reset();
+    document.getElementById('user-form-id').value = '';
+    document.getElementById('modal-user-title').textContent = 'เพิ่มผู้ใช้งานใหม่';
+    const pwdInput = document.getElementById('u-password');
+    pwdInput.required = true;
+    document.getElementById('u-password-hint').classList.add('hidden');
+    document.getElementById('u-username').readOnly = false;
+    modal.classList.add('is-open');
+  },
+  openEditUserModal(id) {
+    const u = STATE.users.find(x => x.id === id);
+    if (!u) return;
+    const modal = document.getElementById('modal-user');
+    if (!modal) return;
+    document.getElementById('user-form-id').value = u.id;
+    document.getElementById('modal-user-title').textContent = `แก้ไขข้อมูล: ${u.full_name || u.name}`;
+    document.getElementById('u-fullname').value = u.full_name || u.name || '';
+    document.getElementById('u-nickname').value = u.nickname || '';
+    const uname = document.getElementById('u-username');
+    uname.value = u.username || '';
+    uname.readOnly = true;
+    document.getElementById('u-email').value = u.email || '';
+    document.getElementById('u-dept').value = u.department_id || (u.dept === 'IT'?1: u.dept==='HK'?2: u.dept==='ENG'?3: u.dept==='FRONT'?4: 5);
+    document.getElementById('u-role').value = u.role || 'staff';
+    document.getElementById('u-phone').value = u.phone || '';
+    document.getElementById('u-active').value = u.is_active !== undefined ? String(u.is_active) : '1';
+    const pwd = document.getElementById('u-password');
+    pwd.value = '';
+    pwd.required = false;
+    document.getElementById('u-password-hint').classList.remove('hidden');
+    modal.classList.add('is-open');
+  },
+  closeUserModal() {
+    const modal = document.getElementById('modal-user');
+    if (modal) modal.classList.remove('is-open');
+  },
+  async saveUser(e) {
+    e.preventDefault();
+    const id = document.getElementById('user-form-id').value;
+    const payload = {
+      full_name: document.getElementById('u-fullname').value.trim(),
+      nickname: document.getElementById('u-nickname').value.trim(),
+      username: document.getElementById('u-username').value.trim(),
+      email: document.getElementById('u-email').value.trim(),
+      department_id: parseInt(document.getElementById('u-dept').value, 10),
+      role: document.getElementById('u-role').value,
+      phone: document.getElementById('u-phone').value.trim(),
+      is_active: parseInt(document.getElementById('u-active').value, 10),
+    };
+    const pwd = document.getElementById('u-password').value;
+    if (pwd) payload.password = pwd;
+
+    try {
+      let res;
+      if (id) {
+        res = await fetch(`/api/users/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        }).then(r => r.json());
+      } else {
+        payload.password = pwd;
+        res = await fetch('/api/users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        }).then(r => r.json());
+      }
+
+      if (res.success) {
+        Toast.push('ok', 'สำเร็จ', res.message || 'บันทึกข้อมูลเรียบร้อยแล้ว');
+        App.closeUserModal();
+        await renderUsers();
+        await syncFromDatabase();
+      } else {
+        Toast.push('err', 'เกิดข้อผิดพลาด', res.message || 'ไม่สามารถบันทึกได้');
+      }
+    } catch (err) {
+      Toast.push('err', 'การเชื่อมต่อผิดพลาด', err.message);
+    }
+  },
+  async deleteUser(id, name) {
+    if (!confirm(`คุณต้องการระงับการใช้งานบัญชี "${name}" ใช่หรือไม่?`)) return;
+    try {
+      const res = await fetch(`/api/users/${id}`, { method: 'DELETE' }).then(r => r.json());
+      if (res.success) {
+        Toast.push('ok', 'ระงับบัญชีเรียบร้อย', res.message || name);
+        await renderUsers();
+        await syncFromDatabase();
+      } else {
+        Toast.push('err', 'ไม่สามารถทำรายการได้', res.message);
+      }
+    } catch(err) {
+      Toast.push('err', 'เกิดข้อผิดพลาด', err.message);
+    }
   },
   toggleLang() { STATE.ui.lang = STATE.ui.lang==='th'?'en':'th'; applyI18n(); go(STATE.ui.view); renderNotifPanel(); saveState(); },
-  setSpeed(s) { setSpeed(s); Toast.push('info','Demo speed', s+'× — ' + (s==='1'?'real time':'accelerated')); },
   toggleSidebar() {
     const sb = document.getElementById('sidebar');
     const bd = document.getElementById('sidebar-backdrop');
@@ -1249,8 +1387,8 @@ const App = {
     });
     if (!ok) return;
     const fileEl = document.getElementById('f-file');
-    const submit = (attachment) => {
-      const c = createCase({
+    const submit = async (attachment) => {
+      const data = {
         location: document.getElementById('f-loc').value,
         room: document.getElementById('f-room').value.trim(),
         dept: document.getElementById('f-dept').value,
@@ -1260,7 +1398,27 @@ const App = {
         priority: document.getElementById('f-pri').value,
         affects: document.getElementById('f-affects').checked,
         attachment,
-      });
+        reporter_name: STATE.ui.currentUser,
+      };
+      try {
+        const res = await fetch('/api/cases', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        }).then(r => r.json());
+        if (res.success) {
+          await syncFromDatabase();
+          form.reset();
+          document.getElementById('f-cat').disabled = true;
+          STATE.ui.selectedCase = res.caseUid;
+          go('detail');
+          Toast.push('ok', t('toast.caseCreated', {no: res.caseNo}), data.subject);
+          return;
+        }
+      } catch (err) {
+        console.warn('API submit failed, fallback to client state', err);
+      }
+      const c = createCase(data);
       form.reset(); document.getElementById('f-cat').disabled = true;
       STATE.ui.selectedCase = c.caseUid; go('detail');
     };
@@ -1481,13 +1639,6 @@ const App = {
     Toast.push('ok', t('toast.exportDone'), a.download);
   },
 
-  resetDemo() {
-    if (!confirm('รีเซ็ตข้อมูล demo ทั้งหมด?')) return;
-    resetAll();
-    applyI18n(); applyRole();
-    Toast.push('info', t('toast.demoReset'), '');
-    go('list');
-  },
 };
 
 // ============================================================
@@ -1495,14 +1646,30 @@ const App = {
 // ============================================================
 loadState();
 STATE.ui.lang = STATE.config.DEFAULT_LANGUAGE || STATE.ui.lang || 'th';
+
+// Check saved user session
+const savedUser = localStorage.getItem('hotel_user');
+if (savedUser) {
+  try {
+    const u = JSON.parse(savedUser);
+    STATE.ui.currentUser = u.full_name || u.username;
+    STATE.ui.role = u.role;
+    STATE.ui.dept = u.department_code;
+    document.getElementById('screen-login').classList.add('hidden');
+    document.getElementById('screen-app').classList.remove('hidden');
+  } catch (e) {
+    document.getElementById('screen-app').classList.add('hidden');
+    document.getElementById('screen-login').classList.remove('hidden');
+  }
+} else {
+  document.getElementById('screen-app').classList.add('hidden');
+  document.getElementById('screen-login').classList.remove('hidden');
+}
+
 applyI18n();
 applyRole();
 renderNotifCount();
-// If we came from a stored session, we could restore login; here always show login for demo clarity.
-document.getElementById('screen-app').classList.add('hidden');
-document.getElementById('screen-login').classList.remove('hidden');
-// Speed selector reflects state
-const spd = document.getElementById('speed-select'); if (spd) spd.value = String(STATE.ui.speed);
+syncFromDatabase();
 
 // Ticker
 setInterval(() => { tickSLA(); uiTick(); }, 500);
