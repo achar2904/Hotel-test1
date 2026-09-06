@@ -7,66 +7,78 @@
    ========================================================================= */
 
 :root {
-  /* ---- Supplied surfaces (verbatim, do not change) ---- */
-  --bg-base:            #E8E8E8;
-  --surface-1:          #D9D7D7;
-  --surface-2:          #D8DAE3;
+  /* ---- Supplied surfaces (Warm Coral & Cloud Canvas) ---- */
+  --bg-base:            #F8FAFC;
+  --surface-1:          #F1F5F9;
+  --surface-2:          #E2E8F0;
   --surface-elev:       #FFFFFF;
-  --surface-tint:       #EFEEEE;
+  --surface-tint:       #FFF7ED;
 
-  /* ---- Indigo tint scale derived from brand #162D9E ---- */
-  --indigo-50:          #EEF0FA;
-  --indigo-100:         #DDE1F4;
-  --indigo-200:         #B8C0E5;
-  --indigo-300:         #8794D2;
-  --indigo-400:         #5064BA;
-  --indigo-500:         #162D9E;   /* brand */
-  --indigo-600:         #122578;
-  --indigo-700:         #0E1C5B;
-  --indigo-800:         #0A153F;
-  --indigo-900:         #060B24;
+  /* ---- Warm Coral scale derived from brand #F97316 ---- */
+  --coral-50:           #FFF7ED;
+  --coral-100:          #FFEDD5;
+  --coral-200:          #FED7AA;
+  --coral-300:          #FDBA74;
+  --coral-400:          #FB923C;
+  --coral-500:          #F97316;   /* brand primary */
+  --coral-600:          #EA580C;
+  --coral-700:          #C2410C;
+  --coral-800:          #9A3412;
+  --coral-900:          #7C2D12;
+
+  /* Backward-compatible aliases so all existing rules shift seamlessly */
+  --indigo-50:          var(--coral-50);
+  --indigo-100:         var(--coral-100);
+  --indigo-200:         var(--coral-200);
+  --indigo-300:         var(--coral-300);
+  --indigo-400:         var(--coral-400);
+  --indigo-500:         var(--coral-500);
+  --indigo-600:         var(--coral-600);
+  --indigo-700:         var(--coral-700);
+  --indigo-800:         var(--coral-800);
+  --indigo-900:         var(--coral-900);
 
   /* Semantic aliases so the DESIGN.md roles stay named */
-  --accent:             var(--indigo-500);
-  --accent-hover:       var(--indigo-600);
-  --accent-active:      var(--indigo-700);
-  --accent-tint:        var(--indigo-50);
-  --accent-tint-2:      var(--indigo-100);
-  --accent-focus-ring:  rgba(22, 45, 158, 0.32);
+  --accent:             var(--coral-500);
+  --accent-hover:       var(--coral-600);
+  --accent-active:      var(--coral-700);
+  --accent-tint:        var(--coral-50);
+  --accent-tint-2:      var(--coral-100);
+  --accent-focus-ring:  rgba(249, 115, 22, 0.28);
 
-  /* ---- Text — derived, all AA verified (see report) ---- */
-  --text-base:          #121212;
-  --text-emphasis:      #000000;
-  --text-secondary:     #4A4A4A;   /* 6.2:1 on surface-1 */
-  --text-muted:         #595959;   /* 4.9:1 on surface-1 */
+  /* ---- Text — high readability slate ink ---- */
+  --text-base:          #0F172A;
+  --text-emphasis:      #0F172A;
+  --text-secondary:     #334155;
+  --text-muted:         #64748B;
   --text-on-accent:     #FFFFFF;
-  --text-on-tint:       var(--indigo-800);   /* dark indigo for text on tint bg */
+  --text-on-tint:       var(--coral-800);
 
-  /* ---- Semantic (re-tuned for light) ---- */
-  --negative:           #B3251F;
-  --negative-bg:        #FBE5E4;
-  --negative-tint:      #F5D6D5;
-  --warning:            #8A4A00;
-  --warning-bg:         #FBEBD1;
-  --warning-tint:       #F5DFB6;
-  --announcement:       #1E6091;
-  --announcement-bg:    #DDE9F2;
-  --success:            #046A38;
-  --success-bg:         #DBECE0;
-  --success-tint:       #C4DFCC;
+  /* ---- Semantic status for Hotel Operations ---- */
+  --negative:           #DC2626;
+  --negative-bg:        #FEE2E2;
+  --negative-tint:      #FECACA;
+  --warning:            #D97706;
+  --warning-bg:         #FEF3C7;
+  --warning-tint:       #FDE68A;
+  --announcement:       #0284C7;
+  --announcement-bg:    #E0F2FE;
+  --success:            #059669;
+  --success-bg:         #ECFDF5;
+  --success-tint:       #A7F3D0;
 
   /* ---- Borders ---- */
-  --border-hairline:    #C4C2C2;
-  --border-strong:      #6B6B6B;
-  --border-outlined:    #8A8A8A;
-  --border-accent:      var(--indigo-200);
+  --border-hairline:    #E2E8F0;
+  --border-strong:      #94A3B8;
+  --border-outlined:    #CBD5E1;
+  --border-accent:      var(--coral-200);
 
-  /* ---- Shadows — retuned for light gray ---- */
-  --shadow-heavy:  0 20px 40px rgba(10, 21, 63, 0.16), 0 4px 12px rgba(10, 21, 63, 0.08);
-  --shadow-medium: 0 6px 16px rgba(10, 21, 63, 0.10), 0 1px 3px rgba(10, 21, 63, 0.05);
-  --shadow-card:   0 1px 3px rgba(10, 21, 63, 0.07);
-  --shadow-inset:  inset 0 0 0 1px rgba(0,0,0,0.08), 0 1px 0 rgba(255,255,255,0.6);
-  --shadow-accent-glow: 0 8px 24px rgba(22, 45, 158, 0.18), 0 2px 6px rgba(22, 45, 158, 0.12);
+  /* ---- Shadows ---- */
+  --shadow-heavy:  0 20px 40px rgba(15, 23, 42, 0.10), 0 4px 12px rgba(15, 23, 42, 0.05);
+  --shadow-medium: 0 6px 16px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.03);
+  --shadow-card:   0 1px 3px rgba(15, 23, 42, 0.05);
+  --shadow-inset:  inset 0 0 0 1px rgba(0,0,0,0.06), 0 1px 0 rgba(255,255,255,0.8);
+  --shadow-accent-glow: 0 8px 24px rgba(249, 115, 22, 0.20), 0 2px 6px rgba(249, 115, 22, 0.12);
 
   /* ---- Typography ---- */
   --font-ui: 'Inter', 'Noto Sans Thai', 'Sarabun', 'Helvetica Neue', helvetica, arial,

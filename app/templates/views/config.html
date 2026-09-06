@@ -1,0 +1,45 @@
+<section id="view-config" class="view hidden">
+        <div class="page-header">
+          <h1 class="t-section" data-i18n="config.title">ตั้งค่าระบบ</h1>
+          <span class="text-muted t-small" data-i18n="config.saved">บันทึกอัตโนมัติเมื่อแก้</span>
+        </div>
+        <div class="chart-grid">
+          <div class="chart-card">
+            <h3 class="chart-title" data-i18n="config.sla">SLA & Reminders</h3>
+            <div class="form-field"><label class="form-label" data-i18n="config.slaEmerg">SLA_EMERGENCY (min)</label><input class="form-input" type="number" id="c-sla-emerg" onchange="App.saveConfig()"></div>
+            <div class="form-field"><label class="form-label" data-i18n="config.slaUrgent">SLA_URGENT (min)</label><input class="form-input" type="number" id="c-sla-urgent" onchange="App.saveConfig()"></div>
+            <div class="form-field"><label class="form-label" data-i18n="config.slaNormal">SLA_NORMAL (min)</label><input class="form-input" type="number" id="c-sla-normal" onchange="App.saveConfig()"></div>
+            <div class="form-field"><label class="form-label" data-i18n="config.maxReminder">MAX_REMINDER</label><input class="form-input" type="number" id="c-maxrem" onchange="App.saveConfig()"></div>
+            <div class="form-field"><label class="form-label" data-i18n="config.remInterval">REMINDER_INTERVAL (min)</label><input class="form-input" type="number" id="c-reminterval" onchange="App.saveConfig()"></div>
+            <div class="text-muted t-small">
+              <strong data-i18n="config.snapshotNote">เหตุใดต้อง snapshot:</strong>
+              <span data-i18n="config.snapshotExplain">เคสที่สร้างก่อนหน้าจะเก็บค่า SLA เดิม (`SLA_Minutes`) — เปลี่ยนค่าที่นี่จะกระทบเฉพาะเคสใหม่</span>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <h3 class="chart-title" data-i18n="config.rooms">Room & Notification</h3>
+            <label class="form-check">
+              <input type="checkbox" id="c-autoclose" onchange="App.saveConfig()">
+              <span>
+                <span class="t-caption-bold" data-i18n="config.autoClose">AUTO_ROOM_CLOSE</span>
+                <div class="text-muted t-small" data-i18n="config.autoCloseHint">เมื่อสร้างเคสที่ AffectsRoomSalability = TRUE ระบบปิดห้องอัตโนมัติ</div>
+              </span>
+            </label>
+            <div class="form-field mt-4">
+              <label class="form-label" data-i18n="config.defaultLang">Default language</label>
+              <select class="form-select" id="c-lang" onchange="App.saveConfig()">
+                <option value="th">Thai</option>
+                <option value="en">English</option>
+              </select>
+            </div>
+            <div class="text-muted t-small mt-2" data-i18n="config.openOnlyManual">เปิดห้องคืนต้องคนกดเสมอ ระบบไม่เปิดอัตโนมัติ</div>
+          </div>
+
+          <div class="chart-card" style="grid-column: 1 / -1;">
+            <h3 class="chart-title" data-i18n="config.categories">Categories ต่อแผนก</h3>
+            <div class="text-muted t-small mb-3" data-i18n="config.categoriesHint">เพิ่ม/ลบหมวดหมู่ต่อแผนก · TH+EN key</div>
+            <div id="config-categories"></div>
+          </div>
+        </div>
+      </section>

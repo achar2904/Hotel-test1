@@ -1,0 +1,29 @@
+<section id="view-rooms" class="view hidden">
+        <div class="page-header">
+          <h1 class="t-section" data-i18n="rooms.title">Dashboard ห้องพัก</h1>
+          <button class="btn btn-outlined btn-sm" onclick="window.print()" data-i18n="btn.print">Print</button>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi"><span class="kpi-label" data-i18n="rooms.total">ทั้งหมด</span><span class="kpi-value" id="room-total">0</span></div>
+          <div class="kpi ok"><span class="kpi-label" data-i18n="rooms.available">พร้อมขาย</span><span class="kpi-value" id="room-avail">0</span></div>
+          <div class="kpi danger"><span class="kpi-label" data-i18n="rooms.closed">ปิด</span><span class="kpi-value" id="room-closed">0</span></div>
+          <div class="kpi accent"><span class="kpi-label" data-i18n="rooms.pct">% พร้อมขาย</span><span class="kpi-value" id="room-pct">—</span></div>
+        </div>
+        <div class="chart-grid" style="grid-template-columns: minmax(0,1fr) 340px;">
+          <div class="chart-card">
+            <h3 class="chart-title" data-i18n="rooms.grid">ผังห้อง (คลิกเพื่อดูรายละเอียด)</h3>
+            <div class="room-grid" id="room-grid"></div>
+          </div>
+          <div class="chart-card">
+            <div class="row" style="justify-content:space-between; align-items:baseline; margin-bottom:12px;">
+              <h3 class="chart-title" style="margin:0;">
+                <span data-i18n="rooms.history">ประวัติห้อง</span>
+                <span id="room-history-no" class="text-accent">—</span>
+              </h3>
+              <button id="room-change-btn" class="btn btn-secondary btn-sm hidden" onclick="App.openRoomModal()" data-i18n="rooms.changeStatus">เปลี่ยนสถานะ</button>
+            </div>
+            <div id="room-status-info" class="mb-3"></div>
+            <div class="room-history" id="room-history"></div>
+          </div>
+        </div>
+      </section>

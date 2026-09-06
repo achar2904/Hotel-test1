@@ -1,0 +1,79 @@
+<section id="view-create" class="view hidden">
+        <div class="page-header">
+          <h1 class="t-section" data-i18n="create.title">แจ้งเคสใหม่</h1>
+        </div>
+        <div class="card card-elevated" style="max-width:680px;">
+          <form id="create-form" onsubmit="App.submitCase(event)" novalidate>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+              <div class="form-field">
+                <label class="form-label" for="f-loc" data-i18n="create.location">สถานที่</label>
+                <select class="form-select" id="f-loc" required>
+                  <option value="">—</option>
+                  <option>Guest Room</option>
+                  <option>Lobby</option>
+                  <option>Restaurant</option>
+                  <option>Back Office</option>
+                  <option>Pool</option>
+                </select>
+                <div class="form-error hidden" data-error-for="f-loc"></div>
+              </div>
+              <div class="form-field">
+                <label class="form-label" for="f-room" data-i18n="create.room">เลขห้อง (ถ้ามี)</label>
+                <input class="form-input" id="f-room" inputmode="numeric" placeholder="เช่น 502">
+              </div>
+              <div class="form-field">
+                <label class="form-label" for="f-dept" data-i18n="create.dept">แผนก</label>
+                <select class="form-select" id="f-dept" required onchange="App.refreshCategories()">
+                  <option value="">—</option>
+                  <option value="IT">IT</option>
+                  <option value="HK">HK</option>
+                  <option value="ENG">ENG</option>
+                  <option value="FRONT">FRONT</option>
+                  <option value="SECURITY">SECURITY</option>
+                </select>
+                <div class="form-error hidden" data-error-for="f-dept"></div>
+              </div>
+              <div class="form-field">
+                <label class="form-label" for="f-cat" data-i18n="create.category">หมวดหมู่</label>
+                <select class="form-select" id="f-cat" required disabled>
+                  <option value="" data-i18n="create.selectDeptFirst">เลือกแผนกก่อน</option>
+                </select>
+                <div class="form-error hidden" data-error-for="f-cat"></div>
+              </div>
+            </div>
+            <div class="form-field">
+              <label class="form-label" for="f-subj" data-i18n="create.subject">หัวข้อ</label>
+              <input class="form-input" id="f-subj" required maxlength="80" placeholder="สรุปสั้นๆ 1 บรรทัด">
+              <div class="form-error hidden" data-error-for="f-subj"></div>
+            </div>
+            <div class="form-field">
+              <label class="form-label" for="f-desc" data-i18n="create.desc">รายละเอียด</label>
+              <textarea class="form-textarea" id="f-desc" required placeholder="อธิบายอาการ / สิ่งที่เจอ"></textarea>
+              <div class="form-error hidden" data-error-for="f-desc"></div>
+            </div>
+            <div class="form-field">
+              <label class="form-label" for="f-pri" data-i18n="create.priority">ระดับความเร่งด่วน</label>
+              <select class="form-select" id="f-pri" required>
+                <option value="NORMAL" data-i18n="prio.normalLong">NORMAL (60 นาที)</option>
+                <option value="URGENT" data-i18n="prio.urgentLong">URGENT (40 นาที)</option>
+                <option value="EMERGENCY" data-i18n="prio.emergencyLong">EMERGENCY (20 นาที)</option>
+              </select>
+            </div>
+            <label class="form-check">
+              <input type="checkbox" id="f-affects">
+              <span>
+                <span class="t-caption-bold" data-i18n="create.affects">เคสนี้ทำให้ห้องขายไม่ได้</span>
+                <div class="text-muted t-small" data-i18n="create.affectsHint">ระบบจะปิดขายห้องอัตโนมัติจนกว่าจะปิดเคส</div>
+              </span>
+            </label>
+            <div class="form-field mt-4">
+              <label class="form-label" data-i18n="create.attachment">ไฟล์แนบ (ภาพ ≤ 1 MB)</label>
+              <input class="form-input" type="file" id="f-file" accept="image/*" style="padding:8px;">
+            </div>
+            <div class="row gap-3 mt-4" style="justify-content:flex-end;">
+              <button type="button" class="btn btn-outlined" onclick="App.go('list')" data-i18n="btn.cancel">ยกเลิก</button>
+              <button type="submit" class="btn btn-primary btn-lg" data-i18n="create.submit">ส่งเคส</button>
+            </div>
+          </form>
+        </div>
+      </section>

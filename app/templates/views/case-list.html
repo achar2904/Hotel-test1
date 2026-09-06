@@ -1,0 +1,59 @@
+<section id="view-list" class="view hidden">
+        <div class="page-header">
+          <div class="page-title">
+            <h1 class="t-section" data-i18n="list.title">รายการเคส</h1>
+            <span class="badge badge-count" id="list-count">0</span>
+          </div>
+          <div class="row gap-2">
+            <button class="btn btn-outlined btn-sm" onclick="App.exportCSV()">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span data-i18n="btn.exportCsv">CSV</span>
+            </button>
+            <button class="btn btn-outlined btn-sm" onclick="window.print()">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+              <span data-i18n="btn.print">Print</span>
+            </button>
+            <button class="btn btn-primary" onclick="App.go('create')">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span data-i18n="list.newCase">แจ้งเคสใหม่</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="filter-row">
+          <div class="search-wrap">
+            <input class="form-search" type="search" id="search-input" oninput="App.renderList()" placeholder="ค้นหา..." data-i18n-placeholder="list.searchPlaceholder">
+            <span class="kbd-hint"><span class="kbd">/</span></span>
+          </div>
+          <select class="form-select" id="filter-status" onchange="App.renderList()"></select>
+          <select class="form-select" id="filter-priority" onchange="App.renderList()"></select>
+          <select class="form-select" id="filter-dept" onchange="App.renderList()"></select>
+          <select class="form-select" id="filter-category" onchange="App.renderList()"></select>
+          <select class="form-select" id="filter-assignee" onchange="App.renderList()"></select>
+          <select class="form-select" id="filter-sla" onchange="App.renderList()"></select>
+          <input class="form-input" type="date" id="filter-date-from" onchange="App.renderList()" style="width:auto;">
+          <input class="form-input" type="date" id="filter-date-to" onchange="App.renderList()" style="width:auto;">
+        </div>
+
+        <div id="chip-row" class="chip-row"></div>
+
+        <div class="table-scroll">
+          <table class="case-table" aria-label="Case list">
+            <thead>
+              <tr>
+                <th onclick="App.sortBy('caseNo')" data-i18n="table.caseNo">เลขเคส<span class="sort-ind" data-sort="caseNo"></span></th>
+                <th onclick="App.sortBy('subject')" data-i18n="table.subject">หัวข้อ<span class="sort-ind" data-sort="subject"></span></th>
+                <th onclick="App.sortBy('dept')" data-i18n="table.dept">แผนก<span class="sort-ind" data-sort="dept"></span></th>
+                <th onclick="App.sortBy('priority')" data-i18n="table.priority">ระดับ<span class="sort-ind" data-sort="priority"></span></th>
+                <th onclick="App.sortBy('status')" data-i18n="table.status">สถานะ<span class="sort-ind" data-sort="status"></span></th>
+                <th onclick="App.sortBy('due')" data-i18n="table.sla">SLA<span class="sort-ind" data-sort="due">▾</span></th>
+              </tr>
+            </thead>
+            <tbody id="case-tbody"></tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <div class="text-muted t-small" id="pagination-info">—</div>
+          <div class="pages" id="pages"></div>
+        </div>
+      </section>

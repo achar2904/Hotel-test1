@@ -1,0 +1,46 @@
+<header class="topbar">
+    <button class="btn-icon sidebar-toggle" onclick="App.toggleSidebar()" aria-label="Toggle menu">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">H</span>
+      <span class="brand-text" data-i18n="app.brand">Hotel Case</span>
+    </div>
+    <div class="topbar-spacer"></div>
+    <div class="topbar-tools">
+      <span class="sync-indicator" title="Simulated 30s polling"><span class="sync-dot"></span><span id="sync-text">synced now</span></span>
+      <label class="sr-only" for="role-select" data-i18n="app.roleLabel">สลับสิทธิ์</label>
+      <select id="role-select" class="form-select" onchange="App.setRole(this.value)" style="padding:8px 12px; width:auto; font-size:0.85rem;">
+        <option value="staff">Staff</option>
+        <option value="dept_head">Dept Head</option>
+        <option value="admin">Admin</option>
+        <option value="owner">Owner</option>
+      </select>
+      <label class="sr-only" for="speed-select">Demo clock speed</label>
+      <select id="speed-select" class="form-select" onchange="App.setSpeed(this.value)" style="padding:8px 12px; width:auto; font-size:0.85rem;" title="Demo clock speed">
+        <option value="1">1× real</option>
+        <option value="60">60× (1min→1s)</option>
+        <option value="600">600× (10min→1s)</option>
+      </select>
+      <button id="lang-toggle" class="pill-nav" onclick="App.toggleLang()" aria-label="Switch language">TH / EN</button>
+      <button class="btn-icon" onclick="App.toggleNotifs()" aria-label="Notifications">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        <span id="notif-count" class="badge-dot hidden">0</span>
+      </button>
+      <button class="btn-icon" onclick="App.logout()" aria-label="Sign out">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Notification panel -->
+  <aside id="notif-panel" class="notif-panel" role="dialog" aria-label="Notifications">
+    <div class="notif-head">
+      <span class="t-body-bold" data-i18n="notif.title">การแจ้งเตือน</span>
+      <div class="row gap-2">
+        <button class="btn-ghost btn-sm" onclick="App.markAllRead()" data-i18n="notif.markRead">อ่านทั้งหมด</button>
+        <button class="btn-ghost btn-sm" onclick="App.toggleNotifs()">✕</button>
+      </div>
+    </div>
+    <div id="notif-list"></div>
+  </aside>

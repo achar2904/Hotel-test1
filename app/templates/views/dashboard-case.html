@@ -1,0 +1,28 @@
+<section id="view-dashboard" class="view hidden">
+        <div class="page-header">
+          <h1 class="t-section" data-i18n="dashboard.title">Dashboard เคส</h1>
+          <div class="row gap-2">
+            <button class="btn btn-outlined btn-sm" onclick="App.exportCSV()" data-i18n="btn.exportCsv">CSV</button>
+            <button class="btn btn-outlined btn-sm" onclick="window.print()" data-i18n="btn.print">Print</button>
+          </div>
+        </div>
+        <div class="kpi-grid" id="kpi-grid"></div>
+        <div class="chart-grid">
+          <div class="chart-card">
+            <h3 class="chart-title" data-i18n="dashboard.byDept">เคสตามแผนก</h3>
+            <div id="chart-dept"></div>
+          </div>
+          <div class="chart-card">
+            <h3 class="chart-title" data-i18n="dashboard.byStatus">สัดส่วนสถานะ</h3>
+            <div id="chart-status" class="donut"></div>
+          </div>
+          <div class="chart-card">
+            <h3 class="chart-title" data-i18n="dashboard.trend">แนวโน้ม 7 วัน (เคสใหม่ vs ปิด)</h3>
+            <div id="chart-trend"></div>
+          </div>
+          <div class="chart-card">
+            <h3 class="chart-title" data-i18n="dashboard.topCategory">Top category</h3>
+            <div id="chart-topcat"></div>
+          </div>
+        </div>
+      </section>

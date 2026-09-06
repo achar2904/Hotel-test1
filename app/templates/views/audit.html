@@ -1,0 +1,27 @@
+<section id="view-audit" class="view hidden">
+        <div class="page-header">
+          <h1 class="t-section" data-i18n="audit.title">Audit log</h1>
+          <span class="badge badge-count" id="audit-count">0</span>
+        </div>
+        <div class="filter-row">
+          <div class="search-wrap">
+            <input class="form-search" type="search" id="audit-search" oninput="App.renderAudit()" placeholder="ค้นหา..." data-i18n-placeholder="audit.searchPlaceholder">
+          </div>
+          <select class="form-select" id="audit-event" onchange="App.renderAudit()"></select>
+          <input class="form-input" type="date" id="audit-date" onchange="App.renderAudit()" style="width:auto;">
+        </div>
+        <div class="table-scroll">
+          <table class="case-table" aria-label="Audit log">
+            <thead>
+              <tr>
+                <th data-i18n="audit.when">เวลา</th>
+                <th data-i18n="audit.event">เหตุการณ์</th>
+                <th data-i18n="audit.case">เคส</th>
+                <th data-i18n="audit.actor">ผู้กระทำ</th>
+                <th data-i18n="audit.detail">รายละเอียด</th>
+              </tr>
+            </thead>
+            <tbody id="audit-tbody"></tbody>
+          </table>
+        </div>
+      </section>

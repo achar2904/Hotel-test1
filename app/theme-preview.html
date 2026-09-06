@@ -1,0 +1,609 @@
+﻿<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>เปรียบเทียบธีมสีส้ม-ขาว — Hotel Case Reporting System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-main: 'Inter', 'Noto Sans Thai', -apple-system, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--font-main);
+    background: #0f172a;
+    color: #f8fafc;
+    padding: 24px 16px;
+    min-height: 100vh;
+  }
+
+  .header-bar {
+    max-width: 1400px;
+    margin: 0 auto 24px;
+    text-align: center;
+  }
+  .header-bar h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #ffffff;
+  }
+  .header-bar p {
+    color: #94a3b8;
+    font-size: 0.95rem;
+  }
+
+  /* Comparison Grid */
+  .compare-grid {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    gap: 24px;
+  }
+
+  .theme-card {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.4), 0 8px 10px -6px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s;
+  }
+  .theme-card:hover {
+    transform: translateY(-4px);
+  }
+
+  .theme-meta-header {
+    background: #1e293b;
+    padding: 14px 20px;
+    border-bottom: 1px solid #334155;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .theme-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    letter-spacing: 0.5px;
+  }
+  .theme-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #ffffff;
+  }
+  .theme-desc {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin-top: 2px;
+  }
+
+  /* ================= THEME 1: Sunrise Resort ================= */
+  .theme-1 {
+    --primary: #FF6B00;
+    --primary-hover: #e55a00;
+    --primary-soft: #FFF4ED;
+    --primary-border: #FFD6C2;
+    --canvas: #FAFAF9;
+    --surface: #FFFFFF;
+    --surface-subtle: #F5F5F4;
+    --hairline: #E7E5E4;
+    --ink: #1C1917;
+    --ink-muted: #78716C;
+    --badge-pending-bg: #FEE2E2;
+    --badge-pending-text: #DC2626;
+    --badge-prog-bg: #FFF4ED;
+    --badge-prog-text: #FF6B00;
+    --badge-done-bg: #DCFCE7;
+    --badge-done-text: #16A34A;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-pill: 9999px;
+  }
+
+  /* ================= THEME 2: Modern Vivid Tech ================= */
+  .theme-2 {
+    --primary: #FF4F00;
+    --primary-hover: #db4300;
+    --primary-soft: #FFF1EB;
+    --primary-border: #FFCCBA;
+    --canvas: #FFFFFF;
+    --surface: #FFFFFF;
+    --surface-subtle: #F4F4F5;
+    --hairline: #E4E4E7;
+    --ink: #09090B;
+    --ink-muted: #71717A;
+    --badge-pending-bg: #FFE4E6;
+    --badge-pending-text: #E11D48;
+    --badge-prog-bg: #FF4F00;
+    --badge-prog-text: #FFFFFF;
+    --badge-done-bg: #D1FAE5;
+    --badge-done-text: #059669;
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-pill: 9999px;
+  }
+
+  /* ================= THEME 3: Warm Coral & Citrus ================= */
+  .theme-3 {
+    --primary: #F97316;
+    --primary-hover: #ea580c;
+    --primary-soft: #FFEDD5;
+    --primary-border: #FED7AA;
+    --canvas: #F8FAFC;
+    --surface: #FFFFFF;
+    --surface-subtle: #F1F5F9;
+    --hairline: #E2E8F0;
+    --ink: #334155;
+    --ink-muted: #64748B;
+    --badge-pending-bg: #FEE2E2;
+    --badge-pending-text: #B91C1C;
+    --badge-prog-bg: #FFEDD5;
+    --badge-prog-text: #C2410C;
+    --badge-done-bg: #ECFDF5;
+    --badge-done-text: #047857;
+    --radius-sm: 10px;
+    --radius-md: 16px;
+    --radius-pill: 9999px;
+  }
+
+  .ui-canvas {
+    background: var(--canvas);
+    color: var(--ink);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex: 1;
+  }
+
+  .mock-topbar {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-md);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .mock-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .mock-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    background: var(--primary);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1rem;
+    box-shadow: 0 4px 10px rgba(255, 107, 0, 0.25);
+  }
+  .mock-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--ink);
+  }
+  .mock-sub {
+    font-size: 0.72rem;
+    color: var(--ink-muted);
+  }
+
+  .mock-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .stat-box {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+  }
+  .stat-val {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+  .stat-label {
+    font-size: 0.72rem;
+    color: var(--ink-muted);
+    margin-top: 2px;
+  }
+
+  .mock-card {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+    transition: border-color 0.2s;
+  }
+  .mock-card:hover {
+    border-color: var(--primary);
+  }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .card-room {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--primary);
+    background: var(--primary-soft);
+    padding: 3px 8px;
+    border-radius: var(--radius-sm);
+    display: inline-block;
+  }
+  .card-badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: var(--radius-pill);
+  }
+  .badge-pending { background: var(--badge-pending-bg); color: var(--badge-pending-text); }
+  .badge-prog { background: var(--badge-prog-bg); color: var(--badge-prog-text); }
+  .badge-done { background: var(--badge-done-bg); color: var(--badge-done-text); }
+
+  .card-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.4;
+  }
+  .card-meta {
+    font-size: 0.75rem;
+    color: var(--ink-muted);
+    display: flex;
+    gap: 12px;
+  }
+
+  .mock-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .btn-primary {
+    background: var(--primary);
+    color: #ffffff;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 9px 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--font-main);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex: 1;
+  }
+  .btn-secondary {
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-sm);
+    padding: 9px 14px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: var(--font-main);
+  }
+
+  .swatches {
+    display: flex;
+    gap: 6px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--hairline);
+    align-items: center;
+  }
+  .swatch {
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    border: 1px solid rgba(0,0,0,0.1);
+  }
+  .swatch-label {
+    font-size: 0.72rem;
+    color: var(--ink-muted);
+    margin-left: 4px;
+  }
+
+  .theme-select-bar {
+    background: #1e293b;
+    padding: 12px 16px;
+    border-top: 1px solid #334155;
+    text-align: center;
+  }
+  .choose-btn {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-main);
+  }
+
+  .t1-choose { background: #FF6B00; color: #fff; }
+  .t2-choose { background: #FF4F00; color: #fff; }
+  .t3-choose { background: #F97316; color: #fff; }
+</style>
+</head>
+<body>
+
+<div class="header-bar">
+  <h1>🏨 สรุปเปรียบเทียบชุดสีส้ม-ขาว (Hotel Case Reporting System)</h1>
+  <p>เปรียบเทียบตัวอย่างหน้าจอของทั้ง 3 ธีม เพื่อเลือกเฉดสีที่พนักงานชอบและใช้งานสบายตาที่สุด</p>
+</div>
+
+<div class="compare-grid">
+
+  <!-- ================= OPTION 1 ================= -->
+  <div class="theme-card theme-1">
+    <div class="theme-meta-header">
+      <div>
+        <div class="theme-name">แบบที่ 1: Sunrise Resort 🏖️</div>
+        <div class="theme-desc">ส้มสดใส เปล่งประกาย อบอุ่น มีพลังบริการ (แนะนำ ⭐)</div>
+      </div>
+      <span class="theme-badge" style="background:#FFF4ED; color:#FF6B00;">#FF6B00</span>
+    </div>
+
+    <div class="ui-canvas">
+      <div class="mock-topbar">
+        <div class="mock-brand">
+          <div class="mock-logo">H</div>
+          <div>
+            <div class="mock-title">Regent Cha-am</div>
+            <div class="mock-sub">ระบบรับแจ้งเคสโรงแรม</div>
+          </div>
+        </div>
+        <span class="card-badge badge-prog">กำลังปฏิบัติงาน</span>
+      </div>
+
+      <div class="mock-stats">
+        <div class="stat-box">
+          <div class="stat-val" style="color:var(--primary)">14</div>
+          <div class="stat-label">เคสทั้งหมดวันนี้</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" style="color:#DC2626">3</div>
+          <div class="stat-label">รอดำเนินการ</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" style="color:#16A34A">11</div>
+          <div class="stat-label">เสร็จสิ้นแล้ว</div>
+        </div>
+      </div>
+
+      <div class="mock-card">
+        <div class="card-header">
+          <span class="card-room">ห้อง Deluxe 304</span>
+          <span class="card-badge badge-prog">กำลังซ่อม</span>
+        </div>
+        <div class="card-title">แอร์มีเสียงดังผิดปกติ ช่างกำลังเข้าตรวจสอบ</div>
+        <div class="card-meta">
+          <span>🕒 15 นาทีที่แล้ว</span>
+          <span>👤 ช่างสมชาย</span>
+        </div>
+      </div>
+
+      <div class="mock-card">
+        <div class="card-header">
+          <span class="card-room">ห้อง Ocean 102</span>
+          <span class="card-badge badge-pending">ด่วนมาก</span>
+        </div>
+        <div class="card-title">น้ำอุ่นไม่ทำงาน แขกเพิ่ง Check-in</div>
+        <div class="card-meta">
+          <span>🕒 3 นาทีที่แล้ว</span>
+          <span>👤 ฟรอนต์: กานต์พิชชา</span>
+        </div>
+      </div>
+
+      <div class="mock-actions">
+        <button class="btn-primary">+ เปิดเคสใหม่</button>
+        <button class="btn-secondary">ตัวกรอง</button>
+      </div>
+
+      <div class="swatches">
+        <div class="swatch" style="background:#FF6B00"></div>
+        <div class="swatch" style="background:#FFF4ED"></div>
+        <div class="swatch" style="background:#FAFAF9"></div>
+        <div class="swatch" style="background:#FFFFFF"></div>
+        <div class="swatch" style="background:#1C1917"></div>
+        <span class="swatch-label">อบอุ่น สบายตา คมชัดพรีเมียม</span>
+      </div>
+    </div>
+
+    <div class="theme-select-bar">
+      <button class="choose-btn t1-choose">เลือกแบบที่ 1 (Sunrise Resort)</button>
+    </div>
+  </div>
+
+
+  <!-- ================= OPTION 2 ================= -->
+  <div class="theme-card theme-2">
+    <div class="theme-meta-header">
+      <div>
+        <div class="theme-name">แบบที่ 2: Modern Vivid Tech ⚡</div>
+        <div class="theme-desc">ส้มแสดจัด คลีน ขาวสว่าง คมกริบสไตล์ Zapier</div>
+      </div>
+      <span class="theme-badge" style="background:#FFF1EB; color:#FF4F00;">#FF4F00</span>
+    </div>
+
+    <div class="ui-canvas">
+      <div class="mock-topbar">
+        <div class="mock-brand">
+          <div class="mock-logo">H</div>
+          <div>
+            <div class="mock-title">Regent Cha-am</div>
+            <div class="mock-sub">ระบบรับแจ้งเคสโรงแรม</div>
+          </div>
+        </div>
+        <span class="card-badge badge-prog">Online 24h</span>
+      </div>
+
+      <div class="mock-stats">
+        <div class="stat-box">
+          <div class="stat-val" style="color:var(--primary)">14</div>
+          <div class="stat-label">เคสทั้งหมดวันนี้</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" style="color:#E11D48">3</div>
+          <div class="stat-label">รอดำเนินการ</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" style="color:#059669">11</div>
+          <div class="stat-label">เสร็จสิ้นแล้ว</div>
+        </div>
+      </div>
+
+      <div class="mock-card">
+        <div class="card-header">
+          <span class="card-room">ห้อง Deluxe 304</span>
+          <span class="card-badge badge-prog">กำลังซ่อม</span>
+        </div>
+        <div class="card-title">แอร์มีเสียงดังผิดปกติ ช่างกำลังเข้าตรวจสอบ</div>
+        <div class="card-meta">
+          <span>🕒 15 นาทีที่แล้ว</span>
+          <span>👤 ช่างสมชาย</span>
+        </div>
+      </div>
+
+      <div class="mock-card">
+        <div class="card-header">
+          <span class="card-room">ห้อง Ocean 102</span>
+          <span class="card-badge badge-pending">ด่วนมาก</span>
+        </div>
+        <div class="card-title">น้ำอุ่นไม่ทำงาน แขกเพิ่ง Check-in</div>
+        <div class="card-meta">
+          <span>🕒 3 นาทีที่แล้ว</span>
+          <span>👤 ฟรอนต์: กานต์พิชชา</span>
+        </div>
+      </div>
+
+      <div class="mock-actions">
+        <button class="btn-primary">+ เปิดเคสใหม่</button>
+        <button class="btn-secondary">ตัวกรอง</button>
+      </div>
+
+      <div class="swatches">
+        <div class="swatch" style="background:#FF4F00"></div>
+        <div class="swatch" style="background:#FFF1EB"></div>
+        <div class="swatch" style="background:#FFFFFF"></div>
+        <div class="swatch" style="background:#F4F4F5"></div>
+        <div class="swatch" style="background:#09090B"></div>
+        <span class="swatch-label">โมเดิร์น ไฮคอนทราสต์ ชัดเจนทันที</span>
+      </div>
+    </div>
+
+    <div class="theme-select-bar">
+      <button class="choose-btn t2-choose">เลือกแบบที่ 2 (Modern Vivid Tech)</button>
+    </div>
+  </div>
+
+
+  <!-- ================= OPTION 3 ================= -->
+  <div class="theme-card theme-3">
+    <div class="theme-meta-header">
+      <div>
+        <div class="theme-name">แบบที่ 3: Warm Coral 🍑</div>
+        <div class="theme-desc">ส้มคอรัล ละมุนตา พรีเมียม พนักงานมองได้ทั้งวัน</div>
+      </div>
+      <span class="theme-badge" style="background:#FFEDD5; color:#C2410C;">#F97316</span>
+    </div>
+
+    <div class="ui-canvas">
+      <div class="mock-topbar">
+        <div class="mock-brand">
+          <div class="mock-logo">H</div>
+          <div>
+            <div class="mock-title">Regent Cha-am</div>
+            <div class="mock-sub">ระบบรับแจ้งเคสโรงแรม</div>
+          </div>
+        </div>
+        <span class="card-badge badge-prog">เจ้าหน้าที่พร้อม</span>
+      </div>
+
+      <div class="mock-stats">
+        <div class="stat-box">
+          <div class="stat-val" style="color:var(--primary)">14</div>
+          <div class="stat-label">เคสทั้งหมดวันนี้</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" style="color:#B91C1C">3</div>
+          <div class="stat-label">รอดำเนินการ</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" style="color:#047857">11</div>
+          <div class="stat-label">เสร็จสิ้นแล้ว</div>
+        </div>
+      </div>
+
+      <div class="mock-card">
+        <div class="card-header">
+          <span class="card-room">ห้อง Deluxe 304</span>
+          <span class="card-badge badge-prog">กำลังซ่อม</span>
+        </div>
+        <div class="card-title">แอร์มีเสียงดังผิดปกติ ช่างกำลังเข้าตรวจสอบ</div>
+        <div class="card-meta">
+          <span>🕒 15 นาทีที่แล้ว</span>
+          <span>👤 ช่างสมชาย</span>
+        </div>
+      </div>
+
+      <div class="mock-card">
+        <div class="card-header">
+          <span class="card-room">ห้อง Ocean 102</span>
+          <span class="card-badge badge-pending">ด่วนมาก</span>
+        </div>
+        <div class="card-title">น้ำอุ่นไม่ทำงาน แขกเพิ่ง Check-in</div>
+        <div class="card-meta">
+          <span>🕒 3 นาทีที่แล้ว</span>
+          <span>👤 ฟรอนต์: กานต์พิชชา</span>
+        </div>
+      </div>
+
+      <div class="mock-actions">
+        <button class="btn-primary">+ เปิดเคสใหม่</button>
+        <button class="btn-secondary">ตัวกรอง</button>
+      </div>
+
+      <div class="swatches">
+        <div class="swatch" style="background:#F97316"></div>
+        <div class="swatch" style="background:#FFEDD5"></div>
+        <div class="swatch" style="background:#F8FAFC"></div>
+        <div class="swatch" style="background:#FFFFFF"></div>
+        <div class="swatch" style="background:#334155"></div>
+        <span class="swatch-label">นุ่มนวล สบายตา นั่งมองได้ทั้งวัน</span>
+      </div>
+    </div>
+
+    <div class="theme-select-bar">
+      <button class="choose-btn t3-choose">เลือกแบบที่ 3 (Warm Coral)</button>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

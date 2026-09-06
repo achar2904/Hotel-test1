@@ -22,6 +22,30 @@ const MIME_TYPES = {
   '.ico': 'image/x-icon',
 };
 
+// ฟังก์ชันรวม template แบบสด (Live Template Rendering)
+function renderTemplates() {
+  const layoutPath = path.join(__dirname, 'templates', 'layout.html');
+  if (!fs.existsSync(layoutPath)) return null;
+
+  let html = fs.readFileSync(layoutPath, 'utf8');
+  const placeholderRegex = /<!--\s*\{\{([\w\-\.\/]+)\}\}\s*-->/g;
+
+  html = html.replace(placeholderRegex, (match, relPath) => {
+    const fullPath = path.join(__dirname, 'templates', relPath);
+    if (fs.existsSync(fullPath)) {
+      return fs.readFileSync(fullPath, 'utf8');
+    }
+    return `<!-- Missing: ${relPath} -->`;
+  });
+
+  // ซิงค์บันทึกกลับไปยัง index.html เพื่อความเข้ากันได้
+  try {
+    fs.writeFileSync(path.join(__dirname, 'index.html'), html, 'utf8');
+  } catch (e) {}
+
+  return html;
+}
+
 const server = http.createServer((req, res) => {
   const parsedUrl = url.parse(req.url, true);
   let pathname = parsedUrl.pathname;
@@ -33,8 +57,14 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // ถ้าเป็น root ให้ redirect ไป index.html
-  if (pathname === '/') {
+  // ถ้าเป็น root หรือ index.html ให้ render จาก templates ทันที
+  if (pathname === '/' || pathname === '/index.html') {
+    const renderedHtml = renderTemplates();
+    if (renderedHtml) {
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      res.end(renderedHtml);
+      return;
+    }
     pathname = '/index.html';
   }
 
