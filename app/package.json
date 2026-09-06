@@ -1,0 +1,23 @@
+{
+  "name": "hotel-case-reporting",
+  "version": "2.0.0",
+  "description": "Hotel Case Reporting System - The Regent Cha-am & VALA",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "assemble": "node build-templates.js assemble",
+    "watch": "node build-templates.js watch"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "mysql2": "^3.11.0"
+  },
+  "keywords": [
+    "hotel",
+    "case-system",
+    "ticketing",
+    "sla"
+  ],
+  "author": "The Regent Cha-am Beach Resort",
+  "license": "ISC"
+}
