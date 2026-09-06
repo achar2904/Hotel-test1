@@ -138,6 +138,7 @@
         <button class="btn-ghost btn-sm mt-2" style="width:100%; justify-content:center;" onclick="App.resetDemo()" data-i18n="app.resetDemo">รีเซ็ตข้อมูล Demo</button>
       </div>
     </nav>
+    <div id="sidebar-backdrop" class="sidebar-backdrop" onclick="App.toggleSidebar()" aria-hidden="true"></div>
 
     <main class="main" id="main-content">
       <section id="view-list" class="view hidden">
@@ -251,7 +252,7 @@
         </div>
         <div class="card card-elevated" style="max-width:680px;">
           <form id="create-form" onsubmit="App.submitCase(event)" novalidate>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+            <div class="form-grid-2col">
               <div class="form-field">
                 <label class="form-label" for="f-loc" data-i18n="create.location">สถานที่</label>
                 <select class="form-select" id="f-loc" required>
@@ -317,7 +318,7 @@
               <label class="form-label" data-i18n="create.attachment">ไฟล์แนบ (ภาพ ≤ 1 MB)</label>
               <input class="form-input" type="file" id="f-file" accept="image/*" style="padding:8px;">
             </div>
-            <div class="row gap-3 mt-4" style="justify-content:flex-end;">
+            <div class="row gap-3 mt-4 form-actions-mobile" style="justify-content:flex-end;">
               <button type="button" class="btn btn-outlined" onclick="App.go('list')" data-i18n="btn.cancel">ยกเลิก</button>
               <button type="submit" class="btn btn-primary btn-lg" data-i18n="create.submit">ส่งเคส</button>
             </div>
@@ -363,7 +364,7 @@
           <div class="kpi danger"><span class="kpi-label" data-i18n="rooms.closed">ปิด</span><span class="kpi-value" id="room-closed">0</span></div>
           <div class="kpi accent"><span class="kpi-label" data-i18n="rooms.pct">% พร้อมขาย</span><span class="kpi-value" id="room-pct">—</span></div>
         </div>
-        <div class="chart-grid" style="grid-template-columns: minmax(0,1fr) 340px;">
+        <div class="chart-grid room-dashboard-grid">
           <div class="chart-card">
             <h3 class="chart-title" data-i18n="rooms.grid">ผังห้อง (คลิกเพื่อดูรายละเอียด)</h3>
             <div class="room-grid" id="room-grid"></div>

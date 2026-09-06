@@ -4,7 +4,7 @@
         </div>
         <div class="card card-elevated" style="max-width:680px;">
           <form id="create-form" onsubmit="App.submitCase(event)" novalidate>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+            <div class="form-grid-2col">
               <div class="form-field">
                 <label class="form-label" for="f-loc" data-i18n="create.location">สถานที่</label>
                 <select class="form-select" id="f-loc" required>
@@ -70,7 +70,7 @@
               <label class="form-label" data-i18n="create.attachment">ไฟล์แนบ (ภาพ ≤ 1 MB)</label>
               <input class="form-input" type="file" id="f-file" accept="image/*" style="padding:8px;">
             </div>
-            <div class="row gap-3 mt-4" style="justify-content:flex-end;">
+            <div class="row gap-3 mt-4 form-actions-mobile" style="justify-content:flex-end;">
               <button type="button" class="btn btn-outlined" onclick="App.go('list')" data-i18n="btn.cancel">ยกเลิก</button>
               <button type="submit" class="btn btn-primary btn-lg" data-i18n="create.submit">ส่งเคส</button>
             </div>

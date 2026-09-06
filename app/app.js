@@ -678,6 +678,7 @@ function go(view) {
   document.getElementById('view-'+view).classList.remove('hidden');
   document.querySelectorAll('.nav-item, .tabbar button').forEach(n => n.classList.toggle('is-active', n.dataset.nav===view));
   document.getElementById('sidebar').classList.remove('is-open');
+  document.getElementById('sidebar-backdrop')?.classList.remove('is-open');
   if (view==='list') renderList();
   if (view==='detail') renderDetail();
   if (view==='dashboard') renderDashboard();
@@ -1199,7 +1200,12 @@ const App = {
   },
   toggleLang() { STATE.ui.lang = STATE.ui.lang==='th'?'en':'th'; applyI18n(); go(STATE.ui.view); renderNotifPanel(); saveState(); },
   setSpeed(s) { setSpeed(s); Toast.push('info','Demo speed', s+'× — ' + (s==='1'?'real time':'accelerated')); },
-  toggleSidebar() { document.getElementById('sidebar').classList.toggle('is-open'); },
+  toggleSidebar() {
+    const sb = document.getElementById('sidebar');
+    const bd = document.getElementById('sidebar-backdrop');
+    const isOpen = sb.classList.toggle('is-open');
+    if (bd) bd.classList.toggle('is-open', isOpen);
+  },
   toggleNotifs() {
     const p = document.getElementById('notif-panel');
     p.classList.toggle('is-open');
