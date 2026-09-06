@@ -1,49 +1,49 @@
-﻿---
+---
 version: alpha
-name: Hotel-Case-Reporting-Warm-Coral
+name: Hotel-Case-Reporting-Calm-Terracotta
 description: |
-  A warm, hospitality-focused case reporting and task dispatch design system built around warm coral orange (`#F97316`), cloud-white canvas (`#F8FAFC`), crisp elevated surfaces (`#FFFFFF`), and soft slate ink (`#334155`). 
-  Tailored specifically for hotel operations (Regent Cha-am / VALA Beach Resort), providing high visibility for urgent guest requests while preventing eye fatigue during long front-desk and engineering shifts.
+  An eye-comfort, hospitality-focused case reporting and task dispatch design system built around warm terracotta orange (`#D95A1E`), soothing soft linen canvas (`#F1F3F5`), elevated white cards (`#FFFFFF`), and calm slate ink (`#1E293B` / `#475569`). 
+  Tailored specifically for hotel operations (Regent Cha-am / VALA Beach Resort), providing gentle contrast, reduced glare, and a clutter-free visual hierarchy for 24/7 front-desk and engineering shifts.
 
 colors:
-  primary: "#F97316"
-  primary-hover: "#EA580C"
-  primary-active: "#C2410C"
-  primary-soft: "#FFEDD5"
-  primary-subtle: "#FFF7ED"
-  primary-border: "#FED7AA"
+  primary: "#D95A1E"
+  primary-hover: "#C24813"
+  primary-active: "#9E380D"
+  primary-soft: "#FCECE0"
+  primary-subtle: "#FDF6F0"
+  primary-border: "#F8D5BD"
 
-  canvas: "#F8FAFC"
+  canvas: "#F1F3F5"
   surface: "#FFFFFF"
-  surface-subtle: "#F1F5F9"
-  surface-sunken: "#E2E8F0"
+  surface-subtle: "#F8FAFC"
+  surface-sunken: "#EDF2F7"
 
   hairline: "#E2E8F0"
   hairline-strong: "#CBD5E1"
-  hairline-subtle: "#F1F5F9"
+  hairline-subtle: "#F1F3F5"
 
-  ink: "#0F172A"
-  ink-body: "#334155"
+  ink: "#1E293B"
+  ink-body: "#475569"
   ink-muted: "#64748B"
   ink-subtle: "#94A3B8"
   ink-inverse: "#FFFFFF"
 
-  # Semantic Status for Hotel Cases
-  status-pending: "#DC2626"
-  status-pending-bg: "#FEE2E2"
-  status-pending-border: "#FECACA"
+  # Semantic Status for Hotel Cases (Calm Pastels)
+  status-pending: "#C53030"
+  status-pending-bg: "#FED7D7"
+  status-pending-border: "#FEB2B2"
 
-  status-progress: "#F97316"
-  status-progress-bg: "#FFEDD5"
-  status-progress-border: "#FED7AA"
+  status-progress: "#C05621"
+  status-progress-bg: "#FEEBC8"
+  status-progress-border: "#FBD38D"
 
-  status-resolved: "#059669"
-  status-resolved-bg: "#ECFDF5"
-  status-resolved-border: "#A7F3D0"
+  status-resolved: "#276749"
+  status-resolved-bg: "#C6F6D5"
+  status-resolved-border: "#9AE6B4"
 
-  status-escalated: "#0284C7"
-  status-escalated-bg: "#E0F2FE"
-  status-escalated-border: "#BAE6FD"
+  status-escalated: "#2B6CB0"
+  status-escalated-bg: "#BEE3F8"
+  status-escalated-border: "#90CDF4"
 
 typography:
   font-family-sans: "'Inter', 'Noto Sans Thai', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"

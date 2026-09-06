@@ -7,26 +7,26 @@
    ========================================================================= */
 
 :root {
-  /* ---- Supplied surfaces (Warm Coral & Cloud Canvas) ---- */
-  --bg-base:            #F8FAFC;
-  --surface-1:          #FFFFFF;   /* pure white for cards, sidebar, topbar */
-  --surface-2:          #F1F5F9;   /* subtle slate-gray for pills/tags */
+  /* ---- Eye-Comfort Canvas & Surfaces (สบายตา ไม่ขาวจ้า ไม่ลายตา) ---- */
+  --bg-base:            #F1F3F5;   /* พื้นหลังหลักสีควันบุหรี่นุ่มตา สบายสายตา */
+  --surface-1:          #FFFFFF;   /* การ์ดสีขาวสะอาดตา วางบนพื้นเทานุ่ม */
+  --surface-2:          #F8FAFC;   /* พื้นหลังส่วนหัว/กล่องย่อย */
   --surface-elev:       #FFFFFF;
-  --surface-tint:       #FFF7ED;
+  --surface-tint:       #FDF6F0;
 
-  /* ---- Warm Coral scale derived from brand #F97316 ---- */
-  --coral-50:           #FFF7ED;
-  --coral-100:          #FFEDD5;
-  --coral-200:          #FED7AA;
-  --coral-300:          #FDBA74;
-  --coral-400:          #FB923C;
-  --coral-500:          #F97316;   /* brand primary */
-  --coral-600:          #EA580C;
-  --coral-700:          #C2410C;
-  --coral-800:          #9A3412;
-  --coral-900:          #7C2D12;
+  /* ---- Calm Terracotta Orange (ส้มเอิร์ธโทนอบอุ่น ไม่แสดกระแทกตา) ---- */
+  --coral-50:           #FDF6F0;
+  --coral-100:          #FCECE0;
+  --coral-200:          #F8D5BD;
+  --coral-300:          #F3B38F;
+  --coral-400:          #EC8C5A;
+  --coral-500:          #D95A1E;   /* brand primary - อบอุ่น สุภาพ สบายตา */
+  --coral-600:          #C24813;
+  --coral-700:          #9E380D;
+  --coral-800:          #7C2D0B;
+  --coral-900:          #5E2208;
 
-  /* Backward-compatible aliases so all existing rules shift seamlessly */
+  /* Backward-compatible aliases */
   --indigo-50:          var(--coral-50);
   --indigo-100:         var(--coral-100);
   --indigo-200:         var(--coral-200);
@@ -38,47 +38,47 @@
   --indigo-800:         var(--coral-800);
   --indigo-900:         var(--coral-900);
 
-  /* Semantic aliases so the DESIGN.md roles stay named */
+  /* Semantic aliases */
   --accent:             var(--coral-500);
   --accent-hover:       var(--coral-600);
   --accent-active:      var(--coral-700);
   --accent-tint:        var(--coral-50);
   --accent-tint-2:      var(--coral-100);
-  --accent-focus-ring:  rgba(249, 115, 22, 0.28);
+  --accent-focus-ring:  rgba(217, 90, 30, 0.20);
 
-  /* ---- Text — high readability slate ink ---- */
-  --text-base:          #0F172A;
+  /* ---- Text — โทนสี Slate สุภาพ คมชัด ไม่ดำแข็ง ---- */
+  --text-base:          #1E293B;   /* Slate เข้ม อ่านสบาย */
   --text-emphasis:      #0F172A;
-  --text-secondary:     #334155;
+  --text-secondary:     #475569;   /* Slate กลาง สบายตา */
   --text-muted:         #64748B;
   --text-on-accent:     #FFFFFF;
   --text-on-tint:       var(--coral-800);
 
-  /* ---- Semantic status for Hotel Operations ---- */
-  --negative:           #DC2626;
-  --negative-bg:        #FEE2E2;
-  --negative-tint:      #FECACA;
-  --warning:            #D97706;
-  --warning-bg:         #FEF3C7;
-  --warning-tint:       #FDE68A;
-  --announcement:       #0284C7;
-  --announcement-bg:    #E0F2FE;
-  --success:            #059669;
-  --success-bg:         #ECFDF5;
-  --success-tint:       #A7F3D0;
+  /* ---- Semantic status for Hotel Operations (สีพาสเทลสุภาพ) ---- */
+  --negative:           #C53030;
+  --negative-bg:        #FED7D7;
+  --negative-tint:      #FEB2B2;
+  --warning:            #C05621;
+  --warning-bg:         #FEEBC8;
+  --warning-tint:       #FBD38D;
+  --announcement:       #2B6CB0;
+  --announcement-bg:    #BEE3F8;
+  --success:            #276749;
+  --success-bg:         #C6F6D5;
+  --success-tint:       #9AE6B4;
 
-  /* ---- Borders ---- */
+  /* ---- Borders (เส้นบางละมุนตา ลดความลายตา) ---- */
   --border-hairline:    #E2E8F0;
-  --border-strong:      #94A3B8;
+  --border-strong:      #CBD5E1;
   --border-outlined:    #CBD5E1;
   --border-accent:      var(--coral-200);
 
-  /* ---- Shadows ---- */
-  --shadow-heavy:  0 20px 40px rgba(15, 23, 42, 0.10), 0 4px 12px rgba(15, 23, 42, 0.05);
-  --shadow-medium: 0 6px 16px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.03);
-  --shadow-card:   0 1px 3px rgba(15, 23, 42, 0.04);
-  --shadow-inset:  inset 0 0 0 1px rgba(0,0,0,0.06), 0 1px 0 rgba(255,255,255,0.8);
-  --shadow-accent-glow: 0 8px 24px rgba(249, 115, 22, 0.20), 0 2px 6px rgba(249, 115, 22, 0.12);
+  /* ---- Shadows (เงาบางเบา เป็นธรรมชาติ) ---- */
+  --shadow-heavy:  0 16px 32px -4px rgba(15, 23, 42, 0.08), 0 4px 8px -2px rgba(15, 23, 42, 0.03);
+  --shadow-medium: 0 4px 12px -2px rgba(15, 23, 42, 0.05), 0 2px 4px -1px rgba(15, 23, 42, 0.02);
+  --shadow-card:   0 1px 3px rgba(15, 23, 42, 0.03), 0 1px 2px -1px rgba(15, 23, 42, 0.02);
+  --shadow-inset:  inset 0 0 0 1px rgba(15, 23, 42, 0.06);
+  --shadow-accent-glow: 0 4px 14px rgba(217, 90, 30, 0.22);
 
   /* ---- Typography ---- */
   --font-ui: 'Inter', 'Noto Sans Thai', 'Sarabun', 'Helvetica Neue', helvetica, arial,
@@ -317,10 +317,10 @@ button:focus-visible, a:focus-visible, .btn:focus-visible, .pill-nav:focus-visib
 
 .sidebar {
   width: 250px; flex-shrink: 0;
-  background: #FFFFFF;
+  background: #F8FAFC;
   padding: 20px 14px;
   border-right: 1px solid var(--border-hairline);
-  display: flex; flex-direction: column; gap: 6px;
+  display: flex; flex-direction: column; gap: 4px;
   position: sticky; top: 60px;
   height: calc(100vh - 60px);
   overflow-y: auto;
@@ -343,19 +343,19 @@ button:focus-visible, a:focus-visible, .btn:focus-visible, .pill-nav:focus-visib
   width: 3px; border-radius: 3px; background: transparent;
   transition: background var(--dur-fast) var(--ease-out);
 }
-.nav-item:hover { color: var(--accent); background: var(--coral-50); }
+.nav-item:hover { color: var(--text-base); background: #EDF2F7; }
 .nav-item.is-active {
-  background: var(--coral-100);
-  color: var(--coral-800);
-  font-weight: 700;
+  background: #FCECE0;
+  color: #9E380D;
+  font-weight: 600;
 }
 .nav-item.is-active::before { background: var(--accent); }
 .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
 .nav-item .nav-count {
   margin-left: auto;
-  background: var(--coral-200); color: var(--coral-800);
+  background: #E2E8F0; color: #475569;
   padding: 2px 8px; border-radius: var(--r-full);
-  font-size: 0.7rem; font-weight: 700;
+  font-size: 0.7rem; font-weight: 600;
 }
 .nav-item.is-active .nav-count { background: var(--accent); color: #fff; }
 
@@ -368,8 +368,8 @@ button:focus-visible, a:focus-visible, .btn:focus-visible, .pill-nav:focus-visib
   display: flex; align-items: center; gap: 10px;
   padding: 10px 12px;
   border-radius: var(--r-input);
-  background: var(--coral-50);
-  border: 1px solid var(--coral-100);
+  background: #FFFFFF;
+  border: 1px solid var(--border-hairline);
 }
 .user-avatar {
   width: 34px; height: 34px; border-radius: 50%;
@@ -551,24 +551,24 @@ button:focus-visible, a:focus-visible, .btn:focus-visible, .pill-nav:focus-visib
   white-space: nowrap;
 }
 .badge-status-new       { background: var(--announcement-bg); color: var(--announcement); }
-.badge-status-ack       { background: var(--indigo-100); color: var(--indigo-800); }
-.badge-status-progress  { background: var(--warning-bg); color: var(--warning); }
-.badge-status-transferred { background: #E3DBF2; color: #4C2A85; }
+.badge-status-ack       { background: var(--warning-bg); color: var(--warning); }
+.badge-status-progress  { background: #FEF3C7; color: #B45309; }
+.badge-status-transferred { background: #EDF2F7; color: #4A5568; }
 .badge-status-resolved  { background: var(--success-bg); color: var(--success); }
-.badge-status-closed    { background: #DDD9D7; color: var(--text-secondary); }
-.badge-status-cancelled { background: #E4E4E4; color: var(--text-muted); }
+.badge-status-closed    { background: #EDF2F7; color: var(--text-secondary); }
+.badge-status-cancelled { background: #EDF2F7; color: var(--text-muted); }
 .badge-status-reopened  { background: var(--negative-bg); color: var(--negative); }
 
 .badge-priority-emergency { background: var(--negative-bg); color: var(--negative); }
 .badge-priority-emergency::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--negative); }
 .badge-priority-urgent    { background: var(--warning-bg); color: var(--warning); }
 .badge-priority-urgent::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--warning); }
-.badge-priority-normal    { background: var(--indigo-50); color: var(--indigo-700); }
-.badge-priority-normal::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--indigo-400); }
+.badge-priority-normal    { background: #F1F5F9; color: var(--text-secondary); }
+.badge-priority-normal::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #94A3B8; }
 
 .badge-role { background: var(--accent); color: var(--text-on-accent); }
-.badge-dept { background: var(--indigo-50); color: var(--indigo-800); border: 1px solid var(--indigo-100); }
-.badge-count { background: var(--indigo-200); color: var(--indigo-800); padding: 2px 10px; }
+.badge-dept { background: #F1F5F9; color: #334155; border: 1px solid #E2E8F0; font-weight: 600; }
+.badge-count { background: #E2E8F0; color: #475569; padding: 2px 10px; font-weight: 600; }
 
 .sla { font-weight: 700; font-family: var(--font-mono); font-size: 0.85rem; }
 .sla-ok       { color: var(--success); }
@@ -596,22 +596,22 @@ button:focus-visible, a:focus-visible, .btn:focus-visible, .pill-nav:focus-visib
 .case-table { width: 100%; border-collapse: collapse; min-width: 780px; }
 .case-table th, .case-table td { padding: 13px 16px; text-align: left; }
 .case-table thead th {
-  font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
-  color: var(--coral-800);
-  border-bottom: 1px solid var(--coral-100);
-  background: var(--coral-50);
+  font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-hairline);
+  background: #F8FAFC;
   position: sticky; top: 0; z-index: 1;
   cursor: pointer;
   user-select: none;
 }
-.case-table thead th .sort-ind { color: var(--coral-600); font-size: 0.65rem; margin-left: 4px; }
+.case-table thead th .sort-ind { color: var(--text-muted); font-size: 0.65rem; margin-left: 4px; }
 .case-table tbody tr {
   border-bottom: 1px solid var(--border-hairline);
   cursor: pointer;
   transition: background var(--dur-fast);
 }
-.case-table tbody tr:hover { background: var(--coral-50); }
-.case-table tbody tr:focus-visible { background: var(--coral-100); outline-offset: -2px; }
+.case-table tbody tr:hover { background: #F8FAFC; }
+.case-table tbody tr:focus-visible { background: #EDF2F7; outline-offset: -2px; }
 .case-table tbody tr:last-child { border-bottom: 0; }
 .case-no { font-family: var(--font-mono); font-weight: 700; font-size: 0.8rem; color: var(--accent); }
 .case-subject { color: var(--text-base); font-weight: 600; }
